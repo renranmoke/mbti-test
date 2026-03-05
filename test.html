@@ -1,119 +1,566 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>MBTI测试</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MBTI测试（45题）</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#111827;
+      --primary2:#0f172a;
+      --accent:#2563eb;
+      --good:#16a34a;
+      --shadow:0 18px 48px rgba(0,0,0,.10);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,"PingFang SC","Microsoft YaHei",Arial;
+      background: radial-gradient(900px 450px at 10% 0%, #eef2ff 0%, transparent 60%),
+                  radial-gradient(900px 450px at 90% 0%, #ecfeff 0%, transparent 60%),
+                  var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 16px 60px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .topbar{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom: 14px;
+    }
+    .title{
+      margin:0;
+      font-size: 20px;
+      letter-spacing:.2px;
+      line-height:1.2;
+    }
+    .sub{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size: 13px;
+      line-height:1.6;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      color:var(--muted);
+      background:#fff;
+      user-select:none;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:var(--accent);
+    }
 
-<style>
+    .progress{
+      margin: 14px 0 18px;
+      background:#f3f4f6;
+      border:1px solid var(--line);
+      height: 12px;
+      border-radius: 999px;
+      overflow:hidden;
+    }
+    .bar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, #2563eb, #7c3aed);
+      transition: width .25s ease;
+    }
+    .qbox{
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+    }
+    .qmeta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+    .qnum{
+      font-weight:700;
+      font-size:14px;
+      color:var(--primary2);
+    }
+    .dim{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .qtext{
+      margin: 6px 0 14px;
+      font-size: 18px;
+      line-height: 1.45;
+      font-weight: 700;
+      letter-spacing:.2px;
+    }
+    .options{
+      display:grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .opt{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding: 14px;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      cursor:pointer;
+      background:#fff;
+      transition: transform .05s ease, border-color .12s ease, box-shadow .12s ease;
+      user-select:none;
+    }
+    .opt:hover{
+      border-color:#c7d2fe;
+      box-shadow: 0 10px 26px rgba(37,99,235,.12);
+    }
+    .opt input{
+      margin-top: 3px;
+      transform: scale(1.15);
+    }
+    .opt .ot{
+      font-size: 15px;
+      line-height:1.5;
+    }
+    .hint{
+      margin-top: 12px;
+      color:var(--muted);
+      font-size: 12.5px;
+      line-height:1.6;
+    }
+    .warn{
+      margin-top: 10px;
+      color:#b91c1c;
+      font-size: 13px;
+      display:none;
+    }
+    .actions{
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top: 16px;
+    }
+    .leftActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    button{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 14px;
+      cursor:pointer;
+      transition: transform .05s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    button:hover{
+      border-color:#c7d2fe;
+      box-shadow: 0 10px 26px rgba(37,99,235,.12);
+    }
+    button:active{ transform: translateY(1px); }
+    .primary{
+      background: linear-gradient(90deg, #111827, #334155);
+      color:#fff;
+      border-color: transparent;
+    }
+    .primary:hover{
+      box-shadow: 0 14px 34px rgba(17,24,39,.18);
+      border-color: transparent;
+    }
+    .ghost{
+      background:#fff;
+    }
+    .danger{
+      border-color:#fecaca;
+      background:#fff1f2;
+      color:#9f1239;
+    }
 
-body{
-font-family:Arial;
-background:#f4f6fb;
-padding:40px;
-}
+    .footerNote{
+      margin-top: 12px;
+      color:var(--muted);
+      font-size: 12px;
+      line-height:1.6;
+    }
 
-.box{
-max-width:700px;
-margin:auto;
-background:white;
-padding:40px;
-border-radius:10px;
-box-shadow:0 10px 30px rgba(0,0,0,0.1);
-}
-
-button{
-padding:10px 20px;
-margin-top:20px;
-cursor:pointer;
-}
-
-</style>
-
+    @media (max-width:520px){
+      .qtext{ font-size: 17px; }
+      .card{ padding: 16px; }
+      .qbox{ padding: 14px; }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div>
+          <h1 class="title">MBTI人格测试（45题｜升级稳定版）</h1>
+          <div class="sub">请选择每题更符合你“长期状态”的选项（不是偶尔情绪）。每题必答，提交后生成人格类型。</div>
+        </div>
+        <div class="pill"><span class="dot"></span><span id="saveState">已自动保存进度</span></div>
+      </div>
 
-<div class="box">
+      <div class="progress"><div class="bar" id="bar"></div></div>
 
-<h2 id="question">题目加载中...</h2>
+      <div class="qbox">
+        <div class="qmeta">
+          <div class="qnum" id="qnum">第 1/45 题</div>
+          <div class="dim" id="qdim">维度：E / I</div>
+        </div>
 
-<button onclick="answer('A')">A</button>
-<button onclick="answer('B')">B</button>
+        <div class="qtext" id="qtext">题目加载中...</div>
 
-</div>
+        <div class="options" id="options"></div>
+
+        <div class="warn" id="warn">请先选择一个选项再继续。</div>
+        <div class="hint">小提示：如果两边都像你，请选“更常发生/更自然”的那一边。</div>
+
+        <div class="actions">
+          <div class="leftActions">
+            <button class="ghost" id="prevBtn">上一题</button>
+            <button class="ghost" id="nextBtn">下一题</button>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="danger" id="resetBtn">清空重做</button>
+            <button class="primary" id="submitBtn">提交并查看结果</button>
+          </div>
+        </div>
+
+        <div class="footerNote">
+          说明：本测试用于性格倾向参考（非临床诊断）。为了结果更稳定，请尽量在心态平稳时完成。
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script>
+/** =========================
+ *  45题题库（稳定均衡版）
+ *  每题结构：[题干, 选A对应字母, 选B对应字母]
+ *  页面显示会把 A/B 选项文案固定成“左/右倾向”的描述，更稳定。
+ * ========================= */
 
-let questions = [
+const questions = [
+  // E / I (11)
+  ["你更喜欢参加大型聚会还是独自休息？","E","I"],
+  ["与陌生人交流你通常感到轻松还是压力？","E","I"],
+  ["周末更喜欢外出活动还是宅在家？","E","I"],
+  ["社交后你通常感到充满能量还是需要恢复？","E","I"],
+  ["你更喜欢成为团队中心还是旁观者？","E","I"],
+  ["你更习惯主动认识新朋友还是等待别人接近？","E","I"],
+  ["在人群中你更喜欢聊天还是观察？","E","I"],
+  ["遇到新环境你会主动探索还是慢慢适应？","E","I"],
+  ["你更喜欢团队合作还是独立完成任务？","E","I"],
+  ["你更愿意表达自己的想法还是先倾听别人？","E","I"],
+  ["你更喜欢热闹环境还是安静空间？","E","I"],
 
-["你更喜欢独处还是社交","I","E"],
-["做决定时更依赖逻辑还是感觉","T","F"],
-["你更喜欢计划还是随性","J","P"],
-["你更关注现实还是想象","S","N"],
-["社交后你会精力充沛还是疲惫","E","I"]
+  // S / N (11)
+  ["你更关注现实细节还是未来可能？","S","N"],
+  ["你更相信经验还是灵感？","S","N"],
+  ["学习新知识时你更喜欢实例还是概念？","S","N"],
+  ["你更关注当下发生的事情还是未来规划？","S","N"],
+  ["你更喜欢具体事实还是抽象理论？","S","N"],
+  ["你更容易注意到细节还是整体趋势？","S","N"],
+  ["解决问题时你更依赖经验还是创新？","S","N"],
+  ["你更喜欢明确步骤还是自由探索？","S","N"],
+  ["你更相信已验证的方法还是新的想法？","S","N"],
+  ["你更关注现实世界还是想象世界？","S","N"],
+  ["你更喜欢实际操作还是理论讨论？","S","N"],
 
+  // T / F (11)
+  ["做决定时你更依赖逻辑还是情感？","T","F"],
+  ["评价事情时你更关注公平还是关怀？","T","F"],
+  ["面对冲突时你更直接还是委婉？","T","F"],
+  ["你更容易被事实说服还是被情感打动？","T","F"],
+  ["你更重视效率还是人际关系？","T","F"],
+  ["批评别人时你更直接还是温和？","T","F"],
+  ["你更习惯分析问题还是理解情绪？","T","F"],
+  ["你更重视原则还是人情？","T","F"],
+  ["解决问题时你更理性还是感性？","T","F"],
+  ["你更重视结果还是过程感受？","T","F"],
+  ["面对选择你更冷静分析还是跟随感觉？","T","F"],
+
+  // J / P (12)
+  ["你更喜欢提前计划还是临时决定？","J","P"],
+  ["旅行时你更喜欢制定行程还是随性探索？","J","P"],
+  ["工作时你更喜欢清晰计划还是灵活变化？","J","P"],
+  ["面对任务你更喜欢提前完成还是临近截止完成？","J","P"],
+  ["你更喜欢规律生活还是自由安排？","J","P"],
+  ["做事你更喜欢一步步执行还是随机应变？","J","P"],
+  ["你更喜欢确定安排还是开放选择？","J","P"],
+  ["面对变化你更喜欢按计划还是快速适应？","J","P"],
+  ["工作环境你更喜欢结构化还是灵活？","J","P"],
+  ["任务管理你更喜欢列表计划还是随时处理？","J","P"],
+  ["你更喜欢稳定节奏还是刺激变化？","J","P"],
+  ["生活中你更喜欢掌控进度还是随缘发展？","J","P"],
 ];
 
-let index=0;
+/** =========
+ *  本地存储Key（避免刷新丢失）
+ * ========= */
+const STORE_KEY = "mbti_test_v2_answers";
+const STORE_IDX = "mbti_test_v2_index";
 
-let score={
-E:0,I:0,
-S:0,N:0,
-T:0,F:0,
-J:0,P:0
-};
+let current = Number(localStorage.getItem(STORE_IDX) || "0");
+let answers = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); // {0:"A"|"B", ...}
 
-function load(){
+const bar = document.getElementById("bar");
+const qnum = document.getElementById("qnum");
+const qdim = document.getElementById("qdim");
+const qtext = document.getElementById("qtext");
+const optionsEl = document.getElementById("options");
+const warn = document.getElementById("warn");
+const saveState = document.getElementById("saveState");
 
-document.getElementById("question").innerText=
-questions[index][0];
+document.getElementById("prevBtn").addEventListener("click", ()=>go(-1));
+document.getElementById("nextBtn").addEventListener("click", ()=>go(1));
+document.getElementById("resetBtn").addEventListener("click", resetAll);
+document.getElementById("submitBtn").addEventListener("click", submitAll);
 
+function setSavedHint(text){
+  saveState.textContent = text;
+  setTimeout(()=>saveState.textContent="已自动保存进度", 900);
 }
 
-function answer(a){
-
-if(a=="A"){
-
-score[questions[index][1]]++;
-
-}else{
-
-score[questions[index][2]]++;
-
+function save(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(answers));
+  localStorage.setItem(STORE_IDX, String(current));
+  setSavedHint("已保存");
 }
 
-index++;
-
-if(index>=questions.length){
-
-result();
-
-}else{
-
-load();
-
+function dimLabel(a,b){
+  return `维度：${a} / ${b}`;
 }
 
+function render(){
+  const total = questions.length;
+  current = Math.max(0, Math.min(total-1, current));
+
+  const [title, aLetter, bLetter] = questions[current];
+
+  qnum.textContent = `第 ${current+1}/${total} 题`;
+  qdim.textContent = dimLabel(aLetter, bLetter);
+  qtext.textContent = title;
+
+  const picked = answers[current]; // "A" or "B"
+  optionsEl.innerHTML = "";
+
+  // 选项文案：用更稳定的“倾向描述”
+  // 规则：A = 更靠近第2个词前半句，B = 后半句（题干本身已包含“还是”）
+  const parts = title.replace("？","").split("还是");
+  const leftText = (parts[0] || "选项A").replace("你更","").trim();
+  const rightText = (parts[1] || "选项B").trim();
+
+  const optA = makeOption("A", `更偏向：${leftText}`, picked==="A");
+  const optB = makeOption("B", `更偏向：${rightText}`, picked==="B");
+
+  optionsEl.appendChild(optA);
+  optionsEl.appendChild(optB);
+
+  warn.style.display = "none";
+
+  const doneCount = Object.keys(answers).length;
+  const pct = Math.round((doneCount / total) * 100);
+  bar.style.width = `${pct}%`;
+
+  // 按钮状态
+  document.getElementById("prevBtn").disabled = (current===0);
+  document.getElementById("nextBtn").disabled = (current===total-1);
 }
 
-function result(){
+function makeOption(value, text, checked){
+  const label = document.createElement("label");
+  label.className = "opt";
 
-let type="";
+  const input = document.createElement("input");
+  input.type = "radio";
+  input.name = "opt";
+  input.value = value;
+  input.checked = checked;
 
-type += score.E>score.I?"E":"I";
-type += score.S>score.N?"S":"N";
-type += score.T>score.F?"T":"F";
-type += score.J>score.P?"J":"P";
+  const span = document.createElement("div");
+  span.className = "ot";
+  span.textContent = text;
 
-localStorage.setItem("mbti",type);
+  label.appendChild(input);
+  label.appendChild(span);
 
-window.location.href="result.html";
+  label.addEventListener("click", (e)=>{
+    // 点击整行也选中
+    answers[current] = value;
+    save();
+    render();
+  });
 
+  return label;
 }
 
-load();
+function go(step){
+  // 下一题前校验必答
+  if(step === 1 && !answers[current]){
+    warn.style.display = "block";
+    return;
+  }
+  current += step;
+  save();
+  render();
+}
 
+function resetAll(){
+  if(!confirm("确定要清空并重做吗？")){
+    return;
+  }
+  answers = {};
+  current = 0;
+  localStorage.removeItem(STORE_KEY);
+  localStorage.removeItem(STORE_IDX);
+  setSavedHint("已清空");
+  render();
+}
+
+/** =========================
+ *  更稳定的计分逻辑
+ *  - 每维度：多数票决定
+ *  - 平票：用该维度中“更强倾向”的题目数量做二次判定（仍是确定性）
+ *  - 最后再平票：默认前者（E/S/T/J），保证结果固定
+ * ========================= */
+function computeResult(){
+  const score = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+
+  // 用于平票二次判定：记录每维度 A/B 选择次数
+  // 例如 E/I 维度里，选A次数 vs 选B次数
+  const pairCount = {
+    "EI": {A:0,B:0},
+    "SN": {A:0,B:0},
+    "TF": {A:0,B:0},
+    "JP": {A:0,B:0},
+  };
+
+  for(let i=0;i<questions.length;i++){
+    const ans = answers[i]; // A or B
+    const q = questions[i];
+    const aLetter = q[1];
+    const bLetter = q[2];
+
+    if(ans === "A"){
+      score[aLetter] += 1;
+    }else{
+      score[bLetter] += 1;
+    }
+
+    const key = (aLetter+bLetter); // EI / SN / TF / JP
+    if(pairCount[key]){
+      pairCount[key][ans] += 1;
+    }
+  }
+
+  function pick(a,b){
+    // 多数票
+    if(score[a] > score[b]) return a;
+    if(score[b] > score[a]) return b;
+
+    // 平票：看该维度选A/选B哪个多（与题目排列绑定、确定）
+    const key = a+b;
+    if(pairCount[key]){
+      if(pairCount[key].A > pairCount[key].B) return a;
+      if(pairCount[key].B > pairCount[key].A) return b;
+    }
+
+    // 仍平票：固定返回前者，保证稳定不抖
+    return a;
+  }
+
+  const type = pick("E","I") + pick("S","N") + pick("T","F") + pick("J","P");
+
+  // 计算百分比（用于展示/扩展）
+  function pct(a,b){
+    const total = score[a] + score[b];
+    const pa = total ? Math.round((score[a]/total)*100) : 50;
+    const pb = 100 - pa;
+    return {a:pa, b:pb};
+  }
+
+  const EI = pct("E","I");
+  const SN = pct("S","N");
+  const TF = pct("T","F");
+  const JP = pct("J","P");
+
+  return {
+    type,
+    score,
+    percent: { EI, SN, TF, JP }
+  };
+}
+
+function submitAll(){
+  // 必须全部答完
+  const total = questions.length;
+  for(let i=0;i<total;i++){
+    if(!answers[i]){
+      current = i;
+      save();
+      render();
+      warn.style.display = "block";
+      warn.textContent = "请先把所有题目答完再提交（当前这题未选择）。";
+      return;
+    }
+  }
+
+  const result = computeResult();
+
+  // 结果写入localStorage（给result.html备用）
+  localStorage.setItem("mbti_result_type", result.type);
+  localStorage.setItem("mbti_result_score", JSON.stringify(result.score));
+  localStorage.setItem("mbti_result_percent", JSON.stringify(result.percent));
+
+  // 同时用URL参数传过去（更稳，不怕用户清缓存）
+  const params = new URLSearchParams();
+  params.set("type", result.type);
+  params.set("E", result.score.E); params.set("I", result.score.I);
+  params.set("S", result.score.S); params.set("N", result.score.N);
+  params.set("T", result.score.T); params.set("F", result.score.F);
+  params.set("J", result.score.J); params.set("P", result.score.P);
+
+  // 跳转到结果页
+  window.location.href = "result.html?" + params.toString();
+}
+
+// 初始化渲染
+render();
 </script>
-
 </body>
 </html>
