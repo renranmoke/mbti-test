@@ -1,31 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>16人格测试</title>
+<meta charset="UTF-8">
+<title>MBTI测试</title>
 
 <style>
 
 body{
 font-family:Arial;
-background:#f4f4f4;
+background:#f4f6fb;
 padding:40px;
 }
 
 .box{
-background:white;
-padding:20px;
-max-width:600px;
+max-width:700px;
 margin:auto;
+background:white;
+padding:40px;
 border-radius:10px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
 }
 
 button{
-margin-top:20px;
 padding:10px 20px;
-background:black;
-color:white;
-border:none;
+margin-top:20px;
+cursor:pointer;
 }
 
 </style>
@@ -36,36 +35,83 @@ border:none;
 
 <div class="box">
 
-<h2>16人格测试</h2>
+<h2 id="question">题目加载中...</h2>
 
-<p>1. 你更喜欢：</p>
-
-<input type="radio" name="q1"> 和很多人聊天<br>
-<input type="radio" name="q1"> 独处思考<br>
-
-<p>2. 做决定时你更看重：</p>
-
-<input type="radio" name="q2"> 逻辑<br>
-<input type="radio" name="q2"> 情感<br>
-
-<p>3. 你更喜欢：</p>
-
-<input type="radio" name="q3"> 计划<br>
-<input type="radio" name="q3"> 随机<br>
-
-<br>
-
-<button onclick="result()">查看结果</button>
+<button onclick="answer('A')">A</button>
+<button onclick="answer('B')">B</button>
 
 </div>
 
 <script>
 
-function result(){
+let questions = [
 
-alert("你的性格类型偏向：INTJ\n\n完整版解析请联系客服获取");
+["你更喜欢独处还是社交","I","E"],
+["做决定时更依赖逻辑还是感觉","T","F"],
+["你更喜欢计划还是随性","J","P"],
+["你更关注现实还是想象","S","N"],
+["社交后你会精力充沛还是疲惫","E","I"]
+
+];
+
+let index=0;
+
+let score={
+E:0,I:0,
+S:0,N:0,
+T:0,F:0,
+J:0,P:0
+};
+
+function load(){
+
+document.getElementById("question").innerText=
+questions[index][0];
 
 }
+
+function answer(a){
+
+if(a=="A"){
+
+score[questions[index][1]]++;
+
+}else{
+
+score[questions[index][2]]++;
+
+}
+
+index++;
+
+if(index>=questions.length){
+
+result();
+
+}else{
+
+load();
+
+}
+
+}
+
+function result(){
+
+let type="";
+
+type += score.E>score.I?"E":"I";
+type += score.S>score.N?"S":"N";
+type += score.T>score.F?"T":"F";
+type += score.J>score.P?"J":"P";
+
+localStorage.setItem("mbti",type);
+
+window.location.href="result.html";
+
+}
+
+load();
 
 </script>
 
