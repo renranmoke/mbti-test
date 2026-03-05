@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MBTI测试结果</title>
+<style>
+body{
+font-family:Arial;
+background:#f4f6fb;
+padding:40px;
+text-align:center;
+}
+
+.box{
+background:white;
+padding:40px;
+border-radius:10px;
+max-width:600px;
+margin:auto;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+h1{
+color:#333;
+}
+
+h2{
+margin-top:30px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>你的MBTI人格类型</h1>
+
+<h2 id="type">结果加载中...</h2>
+
+<h3>性格优势</h3>
+<p>你具有独特的思维方式和稳定的行为模式。</p>
+
+<h3>需要注意</h3>
+<p>在压力环境下可能容易陷入自我怀疑，需要适当调整。</p>
+
+<h3>适合职业</h3>
+<p>心理学、产品经理、设计、咨询、管理等领域。</p>
+
+</div>
+
+<script>
+
+const type = localStorage.getItem("mbti");
+
+if(type){
+document.getElementById("type").innerText = type;
+}
+
+</script>
+
+</body>
+</html>
