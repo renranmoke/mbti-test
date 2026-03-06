@@ -1,64 +1,695 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>MBTI测试结果</title>
-<style>
-body{
-font-family:Arial;
-background:#f4f6fb;
-padding:40px;
-text-align:center;
-}
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MBTI测试结果</title>
+  <style>
+    :root{
+      --bg:#f7f8fb; --card:#fff; --ink:#121212; --muted:#667085;
+      --line:#e7e9f1; --shadow:0 18px 50px rgba(0,0,0,.10);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#f8fafc,#f4f6fb);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Arial;color:var(--ink)}
+    .wrap{max-width:980px;margin:0 auto;padding:28px 16px 44px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:22px}
+    .top{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;justify-content:space-between}
+    .title h1{margin:0;font-size:22px;letter-spacing:.2px}
+    .title p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.7}
+    .pillRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:var(--muted);background:#fff}
+    .dot{width:8px;height:8px;border-radius:50%;background:#111}
+    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:14px}
+    @media (max-width:860px){.hero{grid-template-columns:1fr}}
+    .big{border-radius:16px;border:1px solid var(--line);padding:18px;background:linear-gradient(180deg,#ffffff,#fbfbff)}
+    .bigType{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+    .type{font-size:44px;letter-spacing:1px;margin:0}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:var(--muted);background:#fff}
+    .kv{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:540px){.kv{grid-template-columns:1fr}}
+    .kbox{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}
+    .kbox h3{margin:0 0 6px;font-size:13px;color:#111}
+    .kbox p{margin:0;color:var(--muted);font-size:12px;line-height:1.7}
 
-.box{
-background:white;
-padding:40px;
-border-radius:10px;
-max-width:600px;
-margin:auto;
-box-shadow:0 10px 30px rgba(0,0,0,0.1);
-}
+    .side{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff}
+    .side h3{margin:0 0 10px;font-size:14px}
+    .bar{margin:10px 0 12px}
+    .barTop{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
+    .track{height:10px;border-radius:999px;background:#eef0f7;overflow:hidden;border:1px solid #e6e9f3}
+    .fill{height:100%;width:50%;background:#111;border-radius:999px}
+    .note{font-size:12px;color:var(--muted);line-height:1.7;margin:10px 0 0}
 
-h1{
-color:#333;
-}
-
-h2{
-margin-top:30px;
-}
-
-</style>
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+    @media (max-width:860px){.grid{grid-template-columns:1fr}}
+    .panel{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fff}
+    .panel h2{margin:0 0 10px;font-size:16px}
+    .panel ul{margin:0;padding-left:18px;color:#2b2f39}
+    .panel li{margin:7px 0;line-height:1.65;font-size:13px}
+    .muted{color:var(--muted)}
+    .callout{margin-top:14px;border:1px dashed #d7dbe8;background:#fbfcff;border-radius:16px;padding:14px}
+    .callout h3{margin:0 0 6px;font-size:14px}
+    .callout p{margin:0;color:var(--muted);font-size:12px;line-height:1.8}
+    .footer{margin-top:14px;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}
+    .btnRow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+    .btn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font-size:13px;cursor:pointer}
+    .btnPrimary{background:#111;color:#fff;border-color:#111}
+    .small{font-size:11px;color:var(--muted)}
+    a{color:#111}
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div class="title">
+          <h1>你的 MBTI 人格画像（详细版）</h1>
+          <p>
+            本结果基于你的答题倾向生成，仅用于自我理解与成长参考（非临床诊断）。
+            若你在不同情境下答题，结果可能有轻微波动，属于正常现象。
+          </p>
+          <div class="pillRow" id="pillRow"></div>
+        </div>
+        <div class="small">
+          <div>结果页：<b id="typeMini">—</b></div>
+          <div>生成时间：<span id="timeMini">—</span></div>
+        </div>
+      </div>
 
-<div class="box">
+      <div class="hero">
+        <div class="big">
+          <div class="bigType">
+            <h2 class="type" id="typeBig">ISTJ</h2>
+            <span class="badge" id="roleBadge"><span class="dot"></span><span>类型标签</span></span>
+            <span class="badge" id="styleBadge"><span class="dot"></span><span>行为风格</span></span>
+          </div>
+          <div class="kv">
+            <div class="kbox">
+              <h3>一句话总结</h3>
+              <p id="oneLine">—</p>
+            </div>
+            <div class="kbox">
+              <h3>你最值钱的能力</h3>
+              <p id="coreValue">—</p>
+            </div>
+            <div class="kbox">
+              <h3>容易踩的坑</h3>
+              <p id="pitfall">—</p>
+            </div>
+            <div class="kbox">
+              <h3>适配环境</h3>
+              <p id="bestEnv">—</p>
+            </div>
+          </div>
 
-<h1>你的MBTI人格类型</h1>
+          <div class="callout">
+            <h3>稳定性提示（让结果更“稳”）</h3>
+            <p>
+              建议你以“近 3 个月大多数情况下的你”为准作答；如果你刚经历情绪波动/重大变动，
+              可在状态更稳定时再测一次对比。重复测两次取共同点，会更贴近真实人格。
+            </p>
+          </div>
+        </div>
 
-<h2 id="type">结果加载中...</h2>
+        <div class="side">
+          <h3>四维倾向（可解释你的“为什么”）</h3>
 
-<h3>性格优势</h3>
-<p>你具有独特的思维方式和稳定的行为模式。</p>
+          <div class="bar">
+            <div class="barTop"><span id="l1">外向 E</span><span id="r1">内向 I</span></div>
+            <div class="track"><div class="fill" id="b1"></div></div>
+            <div class="note" id="t1">—</div>
+          </div>
 
-<h3>需要注意</h3>
-<p>在压力环境下可能容易陷入自我怀疑，需要适当调整。</p>
+          <div class="bar">
+            <div class="barTop"><span id="l2">直觉 N</span><span id="r2">实感 S</span></div>
+            <div class="track"><div class="fill" id="b2"></div></div>
+            <div class="note" id="t2">—</div>
+          </div>
 
-<h3>适合职业</h3>
-<p>心理学、产品经理、设计、咨询、管理等领域。</p>
+          <div class="bar">
+            <div class="barTop"><span id="l3">情感 F</span><span id="r3">思考 T</span></div>
+            <div class="track"><div class="fill" id="b3"></div></div>
+            <div class="note" id="t3">—</div>
+          </div>
 
-</div>
+          <div class="bar">
+            <div class="barTop"><span id="l4">感知 P</span><span id="r4">判断 J</span></div>
+            <div class="track"><div class="fill" id="b4"></div></div>
+            <div class="note" id="t4">—</div>
+          </div>
+
+          <p class="note">
+            说明：条形图是“倾向”不是“能力高低”。倾向越明显，在压力下越容易回到该模式。
+          </p>
+
+          <div class="btnRow">
+            <button class="btn" id="btnRetest">重新测一次</button>
+            <button class="btn btnPrimary" id="btnCopy">复制结果（发给客服/朋友）</button>
+          </div>
+          <div class="footer small" id="copyTip"></div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>你的优势（可拿来变现）</h2>
+          <ul id="strengths"></ul>
+          <p class="muted small" style="margin-top:10px">提示：优势=你“做起来更省力”的能力，适合长期积累。</p>
+        </div>
+
+        <div class="panel">
+          <h2>你的短板（并不丢人，但要管理）</h2>
+          <ul id="weaknesses"></ul>
+          <p class="muted small" style="margin-top:10px">提示：短板不是缺陷，而是“消耗点”。学会策略就能越走越稳。</p>
+        </div>
+
+        <div class="panel">
+          <h2>恋爱/关系模式（你为什么会累）</h2>
+          <ul id="love"></ul>
+          <p class="muted small" style="margin-top:10px">建议：关系里最关键的是“看见彼此的底层需求”。</p>
+        </div>
+
+        <div class="panel">
+          <h2>适合职业与工作方式</h2>
+          <ul id="career"></ul>
+          <p class="muted small" style="margin-top:10px">提示：选择“消耗更少、反馈更清晰”的岗位，会更容易做出成绩。</p>
+        </div>
+
+        <div class="panel">
+          <h2>压力下的你（最容易翻车的地方）</h2>
+          <ul id="stress"></ul>
+          <p class="muted small" style="margin-top:10px">建议：你不是不行，是需要一套“恢复系统”。</p>
+        </div>
+
+        <div class="panel">
+          <h2>成长建议（最快见效的 7 天行动）</h2>
+          <ul id="growth"></ul>
+          <p class="muted small" style="margin-top:10px">做法：只做其中 2 条，坚持一周，你会明显感觉不一样。</p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div>若你需要更“值钱”的版本：可在结果基础上结合【你的年龄/行业/关系困扰】做定制解读。</div>
+        <div class="small">本页面不收集个人隐私数据；结果仅保存在你的浏览器本地。</div>
+      </div>
+    </div>
+  </div>
 
 <script>
-
-const type = localStorage.getItem("mbti");
-
-if(type){
-document.getElementById("type").innerText = type;
+/* ========= 工具 ========= */
+function $(id){ return document.getElementById(id); }
+function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+function nowStr(){
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function percentBar(fillEl, p){ fillEl.style.width = clamp(p,2,98) + "%"; }
+function li(text){
+  const el=document.createElement("li");
+  el.textContent=text;
+  return el;
 }
 
-</script>
+/* ========= 读取结果（兼容多种存法） =========
+   你之前的 test.html 可能用不同 key 存储：
+   - localStorage.mbtiType
+   - localStorage.result / mbti_result
+   - URL 参数 ?type=ISTJ 或 ?t=ISTJ
+   - localStorage.scores: {E,I,S,N,T,F,J,P}
+*/
+function getTypeFromAny(){
+  const url=new URL(location.href);
+  const t=url.searchParams.get("type") || url.searchParams.get("t");
+  if(t && /^[EINSFTJP]{4}$/i.test(t)) return t.toUpperCase();
 
+  const k1 = localStorage.getItem("mbtiType") || localStorage.getItem("type") || localStorage.getItem("mbti_type");
+  if(k1 && /^[EINSFTJP]{4}$/i.test(k1)) return k1.toUpperCase();
+
+  const k2 = localStorage.getItem("result") || localStorage.getItem("mbti_result") || localStorage.getItem("mbtiResult");
+  if(k2 && /^[EINSFTJP]{4}$/i.test(k2)) return k2.toUpperCase();
+
+  // 尝试从一个 JSON 里取
+  const k3 = localStorage.getItem("mbti");
+  if(k3){
+    try{
+      const obj=JSON.parse(k3);
+      const tt=obj.type || obj.mbti || obj.result;
+      if(tt && /^[EINSFTJP]{4}$/i.test(tt)) return String(tt).toUpperCase();
+    }catch(e){}
+  }
+  return null;
+}
+
+function getScoresFromAny(){
+  // 期望 {E,I,S,N,T,F,J,P} 的数值（越大代表倾向越强）
+  const raw = localStorage.getItem("scores") || localStorage.getItem("mbti_scores") || localStorage.getItem("mbtiScores");
+  if(raw){
+    try{
+      const s=JSON.parse(raw);
+      const keys=["E","I","S","N","T","F","J","P"];
+      const ok=keys.every(k=>typeof s[k]==="number");
+      if(ok) return s;
+    }catch(e){}
+  }
+  return null;
+}
+
+/* ========= 文案库（16型） ========= */
+const DB = {
+  ISTJ:{
+    role:"秩序建构者", style:"稳、准、负责，重逻辑与规则",
+    oneLine:"你擅长把事情做“对”，并且能长期稳定地把结果交付出来。",
+    coreValue:"靠谱与执行力：你能把混乱变成流程，把目标变成落地。",
+    pitfall:"压力大时容易变得苛刻、对不确定性过敏，沟通显得“硬”。",
+    bestEnv:"目标清晰、规则明确、评价标准透明的团队/岗位。",
+    strengths:[
+      "强执行与强责任感：交付可靠、很少掉链子",
+      "细节与风险意识强：更能发现漏洞、避免返工",
+      "逻辑清晰：擅长把复杂问题拆成步骤",
+      "抗干扰：能在噪音环境里保持专注",
+      "长期主义：适合做需要沉淀的专业能力"
+    ],
+    weaknesses:[
+      "对变化敏感：遇到频繁改需求会更耗能",
+      "表达方式偏直接：容易被误解为冷/强势",
+      "过度自我要求：容易“越努力越焦虑”",
+      "不爱求助：把压力自己扛，恢复慢",
+      "可能低估情绪因素对结果的影响"
+    ],
+    love:[
+      "更看重承诺与稳定，偏向用行动表达爱",
+      "雷区是“反复无常/不守规则/说到做不到”",
+      "需要的安全感：明确关系边界、长期计划与一致性",
+      "建议：把期待说具体（频率、方式、底线），少用暗示",
+      "学会给伴侣情绪一个“被理解”的出口，而不是只给方案"
+    ],
+    career:[
+      "适合：运营/项目管理/财务审计/法务合规/供应链/行政管理/质量管理",
+      "工作方式：用清单+流程化，稳定产出；把标准写出来",
+      "晋升关键：从“自己做得好”升级为“让团队也做得好”",
+      "注意：选择评价体系明确的岗位，会更容易做出成绩",
+      "加分技能：结构化表达（汇报、复盘、SOP）"
+    ],
+    stress:[
+      "压力大时更容易控制欲上升、挑错、急于纠正",
+      "容易陷入“必须做到完美”的自责循环",
+      "信号：睡眠变差、效率下降但更用力",
+      "应对：先降低标准到“够用”，再迭代到“更好”",
+      "最有效恢复：规律作息 + 运动 + 把任务写成可执行步骤"
+    ],
+    growth:[
+      "每天 10 分钟：写下“今天最重要的 1 件事”，只盯这一件",
+      "练习软沟通：先共情一句，再给方案（先人后事）",
+      "给变化留缓冲：计划里预留 20% 机动时间",
+      "每周一次复盘：哪些事情没必要做到 100 分？",
+      "学会授权：把“标准”写出来，再交给别人做",
+      "建立恢复系统：睡眠/饮水/运动三件套",
+      "重要关系：每周一次“只聊天不解决问题”的约会"
+    ],
+    dimText:[
+      "I 倾向更强：你更偏向独处充电，喜欢深度专注。",
+      "S 倾向更强：你重事实与细节，讲究可落地与可验证。",
+      "T 倾向更强：你决策更看逻辑与效率，重原则。",
+      "J 倾向更强：你偏计划与掌控，喜欢确定性与闭环。"
+    ]
+  },
+
+  ISFJ:{
+    role:"守护照顾者", style:"温柔可靠，重情义与细节",
+    oneLine:"你擅长照顾关系与细节，让人觉得被支持、被托住。",
+    coreValue:"稳定与体贴：你让一个团队/关系运转得更顺。",
+    pitfall:"容易过度付出、压抑需求，最后累到爆炸。",
+    bestEnv:"关系和谐、节奏稳定、重视服务与体验的环境。",
+    strengths:[
+      "共情强：能感知他人情绪与需求",
+      "细致耐心：把体验做到“润物细无声”",
+      "责任感强：答应的事会做到",
+      "维护关系：擅长协调矛盾、做润滑剂",
+      "执行稳定：持续输出，不靠情绪起伏"
+    ],
+    weaknesses:[
+      "不擅长拒绝：容易被消耗",
+      "回避冲突：问题拖久了更难解决",
+      "过度在意评价：自我价值容易外包",
+      "变化快时容易焦虑：需要更多确定性",
+      "把“照顾别人”当成唯一价值来源"
+    ],
+    love:[
+      "更倾向用照顾与陪伴表达爱",
+      "雷区是冷暴力、忽视与不稳定",
+      "需要的安全感：明确承诺与持续反馈",
+      "建议：把需求说出来，而不是默默期待对方懂",
+      "练习边界：爱不是牺牲自己"
+    ],
+    career:[
+      "适合：人力/行政/客户成功/教育/护理/服务运营/内容编辑",
+      "工作方式：以用户体验为中心做优化",
+      "晋升关键：从“帮忙的人”变成“负责的人”，学会提要求",
+      "注意：把功劳可视化（记录成果、数据化）",
+      "加分技能：沟通边界与优先级管理"
+    ],
+    stress:[
+      "压力大时会更讨好、把自己放最后",
+      "容易出现情绪性疲惫：心累、无力感",
+      "信号：开始对亲近的人敏感、易委屈",
+      "应对：优先补能量（休息/独处/运动），再解决问题",
+      "最有效恢复：规律生活 + 有质量的陪伴"
+    ],
+    growth:[
+      "每天 1 次：明确表达一个小需求（训练开口）",
+      "学会说“不”：给出替代方案，而不是硬拒绝",
+      "做边界清单：哪些事你愿意做，哪些不愿意",
+      "每周复盘：你最想被怎样对待？",
+      "把情绪写下来：委屈背后是哪个需求没被满足？",
+      "建立自我价值：把注意力从他人评价收回",
+      "选择稳定可控的节奏，不要长期高压"
+    ],
+    dimText:[
+      "I 倾向更强：独处能恢复能量，偏安静内敛。",
+      "S 倾向更强：重视现实与细节，擅长把事做扎实。",
+      "F 倾向更强：决策更看重感受与关系影响。",
+      "J 倾向更强：喜欢计划与确定性，追求可控与闭环。"
+    ]
+  },
+
+  INFJ:{
+    role:"洞察引导者", style:"理想主义+强洞察，内核坚定",
+    oneLine:"你擅长看见人和事背后的动机，并用愿景推动改变。",
+    coreValue:"洞察与共情结合：你能把复杂情绪说清楚、把方向讲明白。",
+    pitfall:"容易想太多、消耗在内耗里，对“意义感”要求高。",
+    bestEnv:"价值观一致、能做长期项目、允许深度思考的环境。",
+    strengths:[
+      "强洞察：能看见关键矛盾与深层需求",
+      "共情与边界并存：既理解人又有原则",
+      "愿景驱动：擅长做长期规划与路线图",
+      "表达有感染力：能把抽象说得动人",
+      "专注力强：适合深度内容/研究/咨询"
+    ],
+    weaknesses:[
+      "内耗：容易反复推演，迟迟不行动",
+      "对关系敏感：容易被氛围影响情绪",
+      "完美主义：对自己要求很高",
+      "不喜欢浅社交：资源拓展慢",
+      "压力下可能突然断联/冷处理"
+    ],
+    love:[
+      "追求灵魂层面的理解与信任",
+      "雷区是敷衍、欺骗与价值观不一致",
+      "需要的安全感：稳定沟通 + 被认真对待",
+      "建议：别用“读心术”期待对方懂，主动说需求",
+      "学会让关系“落地”：把愿景变成日常小行动"
+    ],
+    career:[
+      "适合：心理/咨询/产品策略/品牌内容/研究/教育/写作",
+      "工作方式：用洞察做定位，用系统做落地",
+      "晋升关键：少内耗、多输出（用版本迭代代替完美）",
+      "注意：建立协作网络，不要全靠自己扛",
+      "加分技能：项目管理与节奏控制"
+    ],
+    stress:[
+      "压力下会更封闭、逃避社交",
+      "容易把失败等同于自我否定",
+      "信号：睡眠变差、情绪起伏、拖延加重",
+      "应对：先把任务拆到“最小可行动”",
+      "最有效恢复：独处 + 运动 + 写作/冥想"
+    ],
+    growth:[
+      "每天 30 分钟深度输出（写/做/复盘），不要只思考",
+      "用 80 分交付代替 100 分完美",
+      "建立“能量预算”：社交与工作都要留空档",
+      "明确底线与优先级：减少被动消耗",
+      "用数据记录进步：对抗情绪化否定",
+      "练习直接沟通：少暗示、多明确",
+      "每周一次户外长走，强行让大脑停下来"
+    ],
+    dimText:[
+      "I 倾向更强：独处才能深度思考与恢复。",
+      "N 倾向更强：重可能性与意义，偏愿景与抽象。",
+      "F 倾向更强：决策会考虑他人感受与价值观。",
+      "J 倾向更强：追求结构与确定性，喜欢规划闭环。"
+    ]
+  },
+
+  INTJ:{
+    role:"战略规划者", style:"目标感强，系统思维，喜欢掌控",
+    oneLine:"你擅长用系统和策略把目标做成结果，效率是你的信仰。",
+    coreValue:"系统化与前瞻：你能看见更优路径，并把资源放对地方。",
+    pitfall:"容易显得冷、要求高，沟通缺少情绪缓冲。",
+    bestEnv:"授权清晰、目标明确、允许独立决策的环境。",
+    strengths:[
+      "战略与系统思维：能设计路径与框架",
+      "独立判断：不容易被情绪带跑",
+      "学习快：能迅速抓住规律与本质",
+      "执行有节奏：懂得优先级与资源配置",
+      "问题解决导向：遇事先找最优解"
+    ],
+    weaknesses:[
+      "沟通锋利：容易让人有压迫感",
+      "不耐低效：对重复沟通/无意义会议耐心低",
+      "表达情绪少：亲密关系里容易被误解",
+      "对他人标准高：容易失望或挑剔",
+      "压力下更封闭：不求助、自己硬扛"
+    ],
+    love:[
+      "更看重共同成长与价值观一致",
+      "雷区是无规划、情绪化、说一套做一套",
+      "需要的安全感：彼此尊重边界与长期目标",
+      "建议：表达认可与情绪关心，别只给方案",
+      "学会留一点“温度”，关系会更稳"
+    ],
+    career:[
+      "适合：策略/产品/技术/投研/咨询/数据分析/管理岗位",
+      "工作方式：用指标驱动，用复盘迭代",
+      "晋升关键：提升影响力（把想法讲清楚，让人愿意跟）",
+      "注意：把沟通当成技能训练，而不是浪费时间",
+      "加分技能：领导力、协作与情绪管理"
+    ],
+    stress:[
+      "压力下会更强控制、更挑剔、更孤立",
+      "容易出现“我来就行”的过载模式",
+      "信号：烦躁、睡眠差、对人不耐烦",
+      "应对：授权 + 降低控制范围 + 设定可接受标准",
+      "最有效恢复：独处、运动、输出式思考（写/画框架）"
+    ],
+    growth:[
+      "每天 1 次：对他人表达感谢/认可（增强关系资本）",
+      "把任务拆给别人：练习授权与反馈",
+      "做沟通模板：结论先行 + 3 点理由 + 下一步",
+      "为自己设“休息 KPI”：不休息效率会崩",
+      "在亲密关系里练习共情一句再给方案",
+      "每周一次复盘：哪些控制是多余的？",
+      "建立兴趣爱好，避免生活只剩目标"
+    ],
+    dimText:[
+      "I 倾向更强：独处提升效率，社交消耗更大。",
+      "N 倾向更强：重模式与未来，偏战略与抽象。",
+      "T 倾向更强：决策更看逻辑与效率，重客观原则。",
+      "J 倾向更强：偏计划与掌控，追求确定性与闭环。"
+    ]
+  }
+};
+
+/* 其余 12 型：用一个通用“高质模板”兜底（也很像付费报告） */
+function fallbackTypeDoc(type){
+  const roleMap = {
+    INTP:"逻辑探索者", INFP:"理想共情者", ENTP:"点子辩手", ENFP:"灵感传播者",
+    ISTP:"实用行动者", ISFP:"感性体验者", ESTP:"现场推进者", ESFP:"氛围创造者",
+    ENTJ:"目标统帅者", ENFJ:"关系引领者", ESTJ:"秩序管理者", ESFJ:"温暖组织者"
+  };
+  const styleMap = {
+    INTP:"冷静思辨，重逻辑与自由度", INFP:"温柔坚定，重价值观与意义",
+    ENTP:"脑洞快，敢挑战规则", ENFP:"热情感染力强，重可能性",
+    ISTP:"动手强，遇事先试再说", ISFP:"审美强，重感受与体验",
+    ESTP:"行动快，喜欢现场解决", ESFP:"外向热情，擅长带动氛围",
+    ENTJ:"目标驱动，强组织与推进", ENFJ:"共情强，擅长凝聚团队",
+    ESTJ:"结果与规则导向，重效率", ESFJ:"服务与关系导向，重和谐"
+  };
+  const R = roleMap[type] || "人格类型";
+  const S = styleMap[type] || "有自己的节奏与偏好";
+  return {
+    role:R, style:S,
+    oneLine:`你的核心优势是把“你在意的东西”做成可持续的成果（在适配环境里会非常强）。`,
+    coreValue:`你最值钱的点在于：你有清晰偏好与独特方式，一旦找到适配赛道，会成长很快。`,
+    pitfall:`压力下容易走向极端：要么过度用力、要么直接摆烂/逃避。`,
+    bestEnv:`边界清晰、尊重专业、允许你按擅长方式输出的环境。`,
+    strengths:[
+      "有明显的天赋方向：学得快、抓重点能力强",
+      "自我驱动力：一旦认定目标，会持续推进",
+      "独立思考：不容易被带节奏",
+      "适应力：面对新问题能快速找到路",
+      "在擅长领域能做出“让人惊艳”的成果"
+    ],
+    weaknesses:[
+      "对不匹配环境耐心低：容易被消耗、情绪波动",
+      "容易被完美/意义感拖慢：迟迟不动手",
+      "对关系/规则的理解有盲区（因类型而异）",
+      "压力下要么控制欲上升，要么回避沟通",
+      "需要更系统的节奏管理与复盘习惯"
+    ],
+    love:[
+      "你更需要被尊重与被理解，而不是被控制",
+      "雷区：忽视边界、反复无常、缺乏安全感建设",
+      "建议：把需求说具体（频率/边界/底线），别让对方猜",
+      "用“事实 + 感受 + 请求”表达，关系更稳",
+      "选择价值观一致的人，比单纯心动更重要"
+    ],
+    career:[
+      "选择标准：消耗少 + 反馈清晰 + 可持续成长",
+      "适合：专业型岗位/创意型岗位/项目型岗位（根据你的兴趣）",
+      "晋升关键：把优势能力流程化，让别人也能复用",
+      "注意：避免长期高压无边界的岗位",
+      "加分技能：表达、复盘、项目管理"
+    ],
+    stress:[
+      "压力信号：拖延、易怒、睡眠下降、社交回避或冲动决策",
+      "应对：先恢复能量，再处理问题（顺序不能反）",
+      "把任务拆到最小：先做 5 分钟启动",
+      "减少信息输入：关掉无意义刷屏",
+      "用运动/规律作息把状态拉回“稳定区间”"
+    ],
+    growth:[
+      "每天 10 分钟复盘：今天做对了什么？下次怎么更省力？",
+      "把目标拆成周计划：每周只抓 1～2 件最关键的事",
+      "建立边界：不接无底线需求",
+      "输出优先：先交付再优化（版本思维）",
+      "每周一次深度休息：让大脑真正停下来",
+      "练习沟通：结论先行 + 下一步明确",
+      "为自己设置“稳定系统”：睡眠/运动/饮食"
+    ],
+    dimText:[
+      "I/E 倾向：决定你更靠独处还是社交充电。",
+      "S/N 倾向：决定你更重细节事实还是可能性与意义。",
+      "T/F 倾向：决定你更按逻辑原则还是按感受价值观决策。",
+      "J/P 倾向：决定你更爱计划闭环还是随时调整探索。"
+    ]
+  };
+}
+
+/* ========= 维度推断（没有 scores 就用保守默认） ========= */
+function makeDims(type, scores){
+  // 统一计算：右侧字母越强，条越靠右（更“稳定”观感）
+  // 这里我们把“右侧”定义为 I,S,T,J（便于解释）
+  // 若有真实分数则使用，否则按字母给 62/38 的温和倾向
+  function pct(rightLetter, leftLetter){
+    if(scores){
+      const R = scores[rightLetter] || 0;
+      const L = scores[leftLetter] || 0;
+      const sum = R + L;
+      if(sum <= 0) return 50;
+      return Math.round((R / sum) * 100);
+    }
+    return type.includes(rightLetter) ? 62 : 38;
+  }
+  const pI = pct("I","E");
+  const pS = pct("S","N");
+  const pT = pct("T","F");
+  const pJ = pct("J","P");
+  return {pI,pS,pT,pJ};
+}
+
+/* ========= 渲染 ========= */
+(function init(){
+  const type = getTypeFromAny() || "ISTJ";
+  const scores = getScoresFromAny();
+  const doc = DB[type] || fallbackTypeDoc(type);
+
+  $("typeBig").textContent = type;
+  $("typeMini").textContent = type;
+  $("timeMini").textContent = nowStr();
+
+  // pills
+  const pillRow = $("pillRow");
+  pillRow.innerHTML="";
+  const pills = [
+    {t:"人格类型", v:type},
+    {t:"标签", v:doc.role},
+    {t:"风格", v:doc.style},
+    {t:"适配环境", v:doc.bestEnv}
+  ];
+  pills.forEach((p,i)=>{
+    const el=document.createElement("div");
+    el.className="pill";
+    const dot=document.createElement("span"); dot.className="dot";
+    dot.style.opacity = i===0?1:.55;
+    el.appendChild(dot);
+    const span=document.createElement("span");
+    span.textContent = `${p.t}：${p.v}`;
+    el.appendChild(span);
+    pillRow.appendChild(el);
+  });
+
+  $("roleBadge").innerHTML = `<span class="dot"></span><span>${doc.role}</span>`;
+  $("styleBadge").innerHTML = `<span class="dot"></span><span>${doc.style}</span>`;
+
+  $("oneLine").textContent = doc.oneLine;
+  $("coreValue").textContent = doc.coreValue;
+  $("pitfall").textContent = doc.pitfall;
+  $("bestEnv").textContent = doc.bestEnv;
+
+  // 维度条
+  const dims = makeDims(type, scores);
+  // 我们把填充条理解为“右侧倾向”百分比：I,S,T,J
+  percentBar($("b1"), dims.pI);
+  percentBar($("b2"), dims.pS);
+  percentBar($("b3"), dims.pT);
+  percentBar($("b4"), dims.pJ);
+
+  // 文案提示
+  // 让左/右标签与填充一致（右侧更强时，文本更贴合）
+  $("t1").textContent = doc.dimText?.[0] || `I/E 倾向约：${dims.pI}% I`;
+  $("t2").textContent = doc.dimText?.[1] || `S/N 倾向约：${dims.pS}% S`;
+  $("t3").textContent = doc.dimText?.[2] || `T/F 倾向约：${dims.pT}% T`;
+  $("t4").textContent = doc.dimText?.[3] || `J/P 倾向约：${dims.pJ}% J`;
+
+  // 列表
+  const mapList = (id, arr)=>{
+    const ul=$(id); ul.innerHTML="";
+    arr.forEach(x=>ul.appendChild(li(x)));
+  };
+  mapList("strengths", doc.strengths);
+  mapList("weaknesses", doc.weaknesses);
+  mapList("love", doc.love);
+  mapList("career", doc.career);
+  mapList("stress", doc.stress);
+  mapList("growth", doc.growth);
+
+  // 重新测
+  $("btnRetest").onclick = ()=>{
+    // 回到 test.html
+    location.href = "test.html";
+  };
+
+  // 复制
+  $("btnCopy").onclick = async ()=>{
+    const text =
+`MBTI结果：${type}
+类型标签：${doc.role}
+一句话总结：${doc.oneLine}
+
+优势要点：
+- ${doc.strengths.slice(0,3).join("\n- ")}
+
+短板提醒：
+- ${doc.weaknesses.slice(0,3).join("\n- ")}
+
+建议（7天行动）：
+- ${doc.growth.slice(0,3).join("\n- ")}
+
+（此结果仅供自我理解参考）`;
+    try{
+      await navigator.clipboard.writeText(text);
+      $("copyTip").textContent = "✅ 已复制到剪贴板，你可以直接粘贴发送。";
+    }catch(e){
+      $("copyTip").textContent = "复制失败：你的浏览器可能禁止剪贴板权限。你可以手动选中文本复制。";
+      alert(text);
+    }
+  };
+
+  // 保存一份，方便用户下次打开
+  localStorage.setItem("mbtiType", type);
+  localStorage.setItem("last_result_time", nowStr());
+})();
+</script>
 </body>
 </html>
