@@ -190,3 +190,1364 @@ renderResult(userType);
 </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MBTI测评报告</title>
+  <style>
+    :root{
+      --bg:#f6f2fb;
+      --bg-soft:#fbf8ff;
+      --card:#ffffff;
+      --text:#2f2940;
+      --sub:#7e7695;
+      --line:#ece6f5;
+      --purple-1:#a97bc7;
+      --purple-2:#8e63b0;
+      --purple-3:#c9a9df;
+      --purple-4:#f1e8f8;
+      --shadow:0 14px 40px rgba(112, 72, 148, 0.12);
+      --shadow-soft:0 10px 24px rgba(112, 72, 148, 0.08);
+      --radius-xl:28px;
+      --radius-lg:20px;
+      --radius-md:16px;
+      --radius-sm:12px;
+    }
+
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    html,body{
+      margin:0;
+      padding:0;
+      background:
+        radial-gradient(circle at top, rgba(201,169,223,0.22), transparent 32%),
+        linear-gradient(180deg, #faf7fd 0%, #f5effa 100%);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+    }
+
+    .page{
+      width:100%;
+      max-width:480px;
+      margin:0 auto;
+      padding:18px 14px 34px;
+    }
+
+    .hero{
+      position:relative;
+      padding:22px 18px 18px;
+      border-radius:28px;
+      background:linear-gradient(135deg, var(--purple-1) 0%, var(--purple-2) 100%);
+      box-shadow:0 18px 45px rgba(126, 83, 165, 0.25);
+      color:#fff;
+      isolation:isolate;
+      overflow:hidden;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      background:rgba(255,255,255,0.10);
+      z-index:-1;
+      filter:blur(2px);
+    }
+
+    .hero::before{
+      width:190px;
+      height:190px;
+      top:-84px;
+      right:-74px;
+    }
+
+    .hero::after{
+      width:120px;
+      height:120px;
+      left:-36px;
+      bottom:-42px;
+      background:rgba(255,255,255,0.07);
+    }
+
+    .hero-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    .score-ring-wrap{
+      position:relative;
+      width:112px;
+      min-width:112px;
+      height:112px;
+    }
+
+    .score-ring{
+      width:112px;
+      height:112px;
+      transform:rotate(-90deg);
+      overflow:visible;
+    }
+
+    .score-ring-bg{
+      fill:none;
+      stroke:rgba(255,255,255,0.18);
+      stroke-width:10;
+    }
+
+    .score-ring-progress{
+      fill:none;
+      stroke:#ffffff;
+      stroke-width:10;
+      stroke-linecap:round;
+      stroke-dasharray:282.74;
+      stroke-dashoffset:282.74;
+      transition:stroke-dashoffset .7s ease;
+      filter:drop-shadow(0 4px 8px rgba(255,255,255,0.18));
+    }
+
+    .score-center{
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      pointer-events:none;
+    }
+
+    .score-value{
+      font-size:28px;
+      line-height:1;
+      font-weight:800;
+      letter-spacing:0.5px;
+    }
+
+    .score-unit{
+      margin-top:4px;
+      font-size:12px;
+      opacity:0.88;
+      letter-spacing:0.8px;
+    }
+
+    .hero-info{
+      flex:1;
+      min-width:0;
+    }
+
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.14);
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:0.4px;
+      backdrop-filter:blur(6px);
+    }
+
+    .type-row{
+      margin-top:10px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .type-name{
+      font-size:34px;
+      line-height:1;
+      font-weight:800;
+      letter-spacing:0.8px;
+      margin:0;
+    }
+
+    .energy-pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.14);
+      font-size:13px;
+      font-weight:700;
+      white-space:nowrap;
+      backdrop-filter:blur(6px);
+    }
+
+    .hero-subtitle{
+      margin-top:10px;
+      font-size:14px;
+      line-height:1.7;
+      color:rgba(255,255,255,0.94);
+    }
+
+    .tag-list{
+      margin-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .tag-item{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:30px;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.22);
+      background:rgba(255,255,255,0.12);
+      color:#fff;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.2px;
+      backdrop-filter:blur(6px);
+    }
+
+    .quote-box{
+      margin-top:16px;
+      padding:14px 14px 13px;
+      border-radius:18px;
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.12);
+      backdrop-filter:blur(8px);
+    }
+
+    .quote-label{
+      display:block;
+      margin-bottom:6px;
+      font-size:12px;
+      font-weight:700;
+      opacity:0.82;
+      letter-spacing:0.6px;
+    }
+
+    .quote-text{
+      margin:0;
+      font-size:14px;
+      line-height:1.8;
+      color:#fff;
+    }
+
+    .block{
+      margin-top:16px;
+      padding:18px 16px;
+      border-radius:var(--radius-lg);
+      background:var(--card);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .block-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .block-title{
+      margin:0;
+      font-size:17px;
+      font-weight:800;
+      color:var(--text);
+      letter-spacing:0.2px;
+    }
+
+    .block-desc{
+      font-size:12px;
+      color:var(--sub);
+      white-space:nowrap;
+    }
+
+    .radar-card{
+      padding-top:16px;
+      background:
+        linear-gradient(180deg, rgba(241,232,248,0.62), rgba(255,255,255,0.96) 34%),
+        #fff;
+    }
+
+    .radar-wrap{
+      position:relative;
+      width:100%;
+      aspect-ratio:1/1;
+      max-width:360px;
+      margin:0 auto;
+    }
+
+    .radar-svg{
+      width:100%;
+      height:100%;
+      display:block;
+    }
+
+    .radar-grid{
+      fill:none;
+      stroke:#e5d9f0;
+      stroke-width:1.2;
+    }
+
+    .radar-axis{
+      stroke:#e2d5ee;
+      stroke-width:1;
+    }
+
+    .radar-shape{
+      fill:rgba(169,123,199,0.22);
+      stroke:var(--purple-1);
+      stroke-width:2.5;
+    }
+
+    .radar-dot{
+      fill:#fff;
+      stroke:var(--purple-2);
+      stroke-width:2;
+    }
+
+    .radar-label{
+      font-size:12px;
+      fill:#6b6281;
+      font-weight:700;
+    }
+
+    .radar-score{
+      font-size:11px;
+      fill:#9a8caf;
+      font-weight:700;
+    }
+
+    .ability-shell{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+
+    .ability-item{
+      padding:14px 14px 12px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:linear-gradient(180deg, #fff 0%, #fcfafe 100%);
+    }
+
+    .ability-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:8px;
+    }
+
+    .ability-name{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+    }
+
+    .ability-index{
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--purple-4);
+      color:var(--purple-2);
+      font-size:12px;
+      font-weight:800;
+      flex:none;
+    }
+
+    .ability-title{
+      margin:0;
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+    }
+
+    .ability-value{
+      padding:5px 10px;
+      border-radius:999px;
+      background:#f6effc;
+      color:var(--purple-2);
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .ability-placeholder{
+      margin:0;
+      font-size:13px;
+      line-height:1.75;
+      color:var(--sub);
+    }
+
+    .soft-note{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--sub);
+      text-align:center;
+    }
+
+    .long-copy{
+      font-size:15px;
+      line-height:1.95;
+      color:var(--text);
+    }
+
+    .list-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+
+    .point-item{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:14px 14px 13px;
+      border-radius:18px;
+      background:linear-gradient(180deg,#ffffff 0%,#fcf9ff 100%);
+      border:1px solid var(--line);
+    }
+
+    .point-bullet{
+      width:24px;
+      height:24px;
+      min-width:24px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      font-weight:800;
+      color:var(--purple-2);
+      background:var(--purple-4);
+    }
+
+    .point-text{
+      margin:0;
+      font-size:14px;
+      line-height:1.8;
+      color:var(--text);
+    }
+
+    .summary-card{
+      margin-top:16px;
+      padding:22px 18px 24px;
+      border-radius:28px;
+      background:linear-gradient(135deg, var(--purple-1) 0%, var(--purple-2) 100%);
+      box-shadow:0 18px 45px rgba(126, 83, 165, 0.22);
+      color:#fff;
+    }
+
+    .summary-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:30px;
+      padding:6px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.16);
+      border:1px solid rgba(255,255,255,0.18);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.4px;
+    }
+
+    .summary-title{
+      margin:14px 0 10px;
+      font-size:24px;
+      line-height:1.35;
+      font-weight:800;
+      letter-spacing:.3px;
+    }
+
+    .summary-text{
+      margin:0;
+      font-size:14px;
+      line-height:1.9;
+      color:rgba(255,255,255,.96);
+    }
+
+    @media (max-width:380px){
+      .page{
+        padding-left:12px;
+        padding-right:12px;
+      }
+
+      .hero{
+        padding:18px 14px 16px;
+      }
+
+      .hero-top{
+        align-items:flex-start;
+      }
+
+      .score-ring-wrap,
+      .score-ring{
+        width:98px;
+        min-width:98px;
+        height:98px;
+      }
+
+      .score-value{
+        font-size:24px;
+      }
+
+      .type-name{
+        font-size:30px;
+      }
+
+      .tag-item{
+        padding:6px 10px;
+        font-size:11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" id="resultHero">
+      <div class="hero-top">
+        <div class="score-ring-wrap" aria-label="人格分数">
+          <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="score-ring-bg" cx="60" cy="60" r="45"></circle>
+            <circle class="score-ring-progress" id="scoreProgress" cx="60" cy="60" r="45"></circle>
+          </svg>
+          <div class="score-center">
+            <div class="score-value" id="scoreValue">86</div>
+            <div class="score-unit">人格分</div>
+          </div>
+        </div>
+
+        <div class="hero-info">
+          <div class="hero-kicker" id="levelText">高阶人格</div>
+
+          <div class="type-row">
+            <h1 class="type-name" id="typeName">INTJ</h1>
+            <div class="energy-pill">心智能量 <span id="energyText">88%</span></div>
+          </div>
+
+          <div class="hero-subtitle" id="heroSubtitle">
+            你的稳定感不是来源于依附他人，而是来源于对自己内核的掌控力。
+          </div>
+        </div>
+      </div>
+
+      <div class="tag-list" id="tagList"></div>
+
+      <div class="quote-box">
+        <span class="quote-label">你的专属金句</span>
+        <p class="quote-text" id="quoteText"></p>
+      </div>
+    </section>
+
+    <section class="block radar-card">
+      <div class="block-head">
+        <h2 class="block-title">六维能量图谱</h2>
+        <div class="block-desc">人格能力可视化</div>
+      </div>
+
+      <div class="radar-wrap">
+        <svg class="radar-svg" id="radarSvg" viewBox="0 0 320 320" aria-label="六边形能力图">
+          <g id="radarGridGroup">
+            <polygon class="radar-grid" points="160,46 258,103 258,217 160,274 62,217 62,103"></polygon>
+            <polygon class="radar-grid" points="160,69 238.4,114.5 238.4,205.5 160,251 81.6,205.5 81.6,114.5"></polygon>
+            <polygon class="radar-grid" points="160,92 218.8,126 218.8,194 160,228 101.2,194 101.2,126"></polygon>
+            <polygon class="radar-grid" points="160,115 199.2,137.5 199.2,182.5 160,205 120.8,182.5 120.8,137.5"></polygon>
+            <polygon class="radar-grid" points="160,138 179.6,149 179.6,171 160,182 140.4,171 140.4,149"></polygon>
+
+            <line class="radar-axis" x1="160" y1="160" x2="160" y2="46"></line>
+            <line class="radar-axis" x1="160" y1="160" x2="258" y2="103"></line>
+            <line class="radar-axis" x1="160" y1="160" x2="258" y2="217"></line>
+            <line class="radar-axis" x1="160" y1="160" x2="160" y2="274"></line>
+            <line class="radar-axis" x1="160" y1="160" x2="62" y2="217"></line>
+            <line class="radar-axis" x1="160" y1="160" x2="62" y2="103"></line>
+          </g>
+
+          <g id="radarDataGroup">
+            <polygon class="radar-shape" id="radarShape" points=""></polygon>
+            <g id="radarDots"></g>
+          </g>
+
+          <g id="radarLabels">
+            <text class="radar-label" x="160" y="26" text-anchor="middle">理性决策</text>
+            <text class="radar-label" x="280" y="96" text-anchor="middle">自我接纳</text>
+            <text class="radar-label" x="280" y="236" text-anchor="middle">情绪稳定</text>
+            <text class="radar-label" x="160" y="302" text-anchor="middle">社会适应</text>
+            <text class="radar-label" x="40" y="236" text-anchor="middle">人生格局</text>
+            <text class="radar-label" x="40" y="96" text-anchor="middle">关系感知</text>
+
+            <text class="radar-score" id="scoreLabel0" x="160" y="40" text-anchor="middle">0</text>
+            <text class="radar-score" id="scoreLabel1" x="258" y="112" text-anchor="middle">0</text>
+            <text class="radar-score" id="scoreLabel2" x="258" y="222" text-anchor="middle">0</text>
+            <text class="radar-score" id="scoreLabel3" x="160" y="288" text-anchor="middle">0</text>
+            <text class="radar-score" id="scoreLabel4" x="62" y="222" text-anchor="middle">0</text>
+            <text class="radar-score" id="scoreLabel5" x="62" y="112" text-anchor="middle">0</text>
+          </g>
+        </svg>
+      </div>
+
+      <p class="soft-note">六个维度共同构成你在压力、关系与成长中的真实反应模式。</p>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <h2 class="block-title">能力分项解读</h2>
+        <div class="block-desc">你的心理运行轨迹</div>
+      </div>
+      <div class="ability-shell" id="abilityShell"></div>
+    </section>
+
+    <section class="block" id="descBlock">
+      <div class="block-head">
+        <h2 class="block-title">核心人格解析</h2>
+        <div class="block-desc">你的内在运行逻辑</div>
+      </div>
+      <div class="long-copy" id="descContent"></div>
+    </section>
+
+    <section class="block" id="strengthsBlock">
+      <div class="block-head">
+        <h2 class="block-title">核心优势</h2>
+        <div class="block-desc">你最有力量的部分</div>
+      </div>
+      <div class="list-grid" id="strengthsList"></div>
+    </section>
+
+    <section class="block" id="weaknessesBlock">
+      <div class="block-head">
+        <h2 class="block-title">隐藏弱点</h2>
+        <div class="block-desc">你最容易卡住的地方</div>
+      </div>
+      <div class="list-grid" id="weaknessesList"></div>
+    </section>
+
+    <section class="block" id="growthBlock">
+      <div class="block-head">
+        <h2 class="block-title">成长建议</h2>
+        <div class="block-desc">把天赋变成稳定优势</div>
+      </div>
+      <div class="list-grid" id="growthList"></div>
+    </section>
+
+    <section class="summary-card" id="summaryBlock">
+      <div class="summary-badge">测评结论</div>
+      <h2 class="summary-title" id="summaryTitle">你不是被定义，而是被看见。</h2>
+      <p class="summary-text" id="summaryText"></p>
+    </section>
+  </main>
+
+  <script>
+    const RADAR_DIMENSIONS = [
+      "理性决策",
+      "自我接纳",
+      "情绪稳定",
+      "社会适应",
+      "人生格局",
+      "关系感知"
+    ];
+
+    const mbtiData = {
+      INTJ: {
+        level: "高阶人格",
+        energy: 88,
+        tags: ["深度思考者", "策略型人格", "内核稳定"],
+        quote: "你不是慢热，你只是不会把自己轻易交给一场没有价值的喧闹。",
+        radar: [95, 74, 82, 70, 93, 58],
+        desc: "你属于那种越相处越能让人感受到锋芒的人。你不习惯在热闹里证明自己，更擅长在独处中建立秩序、推演结果、规划未来。你天生带着一种向内收束的力量，对很多人情绪化的反应并不买账，因为你更相信逻辑、判断和长期价值。别人看到的是你克制、安静、甚至有点距离感的一面，但真实的你其实非常在意人生是否有方向、关系是否值得投入、时间是否被浪费。你并不轻易表达，但一旦认定某件事，就会持续推进，直到它达到你心里的标准。",
+        strengths: [
+          "你具备非常强的长期规划能力，能从混乱中迅速抽离出关键路径。",
+          "面对复杂问题时，你更容易保持冷静，不会被一时情绪轻易带偏。",
+          "你有独立思考的天赋，不会盲从，也不会轻易被外界意见绑架。",
+          "你的执行往往不是表面上高调冲刺，而是稳定、持续、精准推进。",
+          "你对质量和标准有天然要求，做出的结果通常更具完成度与判断力。"
+        ],
+        weaknesses: [
+          "你容易把很多情绪需求都视为低效率，从而忽略关系里的柔软部分。",
+          "当别人节奏太慢、逻辑太弱时，你心里会迅速失去耐心。",
+          "你不擅长频繁解释自己，久而久之容易给人留下疏离感。",
+          "过度依赖理性会让你在某些时刻错过即时感受与真实连接。",
+          "你对自己要求过高，容易陷入“还不够好”的隐性内耗。"
+        ],
+        growth: [
+          "学会在表达观点之前，先识别对方的情绪状态，再决定沟通方式。",
+          "允许自己偶尔不必事事最优，降低对完美结果的强控制感。",
+          "在关系中适度表达真实想法，而不是总让别人去猜你的态度。",
+          "把“效率”与“温度”放在同一个系统里思考，你会更有影响力。",
+          "定期停下来感受自己，而不是只盯着目标与下一步计划。"
+        ]
+      },
+
+      INTP: {
+        level: "中高阶人格",
+        energy: 84,
+        tags: ["逻辑探索者", "脑内世界丰富", "创见型人格"],
+        quote: "你真正迷人的地方，不是你知道很多，而是你总能想到别人没想到的角度。",
+        radar: [92, 71, 73, 64, 90, 62],
+        desc: "你是典型的思维驱动型人格，很多人只看到你安静、慢热、偶尔游离的一面，却很少意识到你的脑内其实一直在高速运转。你对表面答案没有兴趣，对标准路径也并不天然信服，真正让你兴奋的是推理、拆解、重组与重新理解这个世界。你往往不喜欢被催促，因为你不是不想做，而是想先把事情想透。你在知识、概念、结构和逻辑之间有很强的穿透力，这让你看起来不一定最合群，却常常是最有独特见解的人。你需要的不是被催着变快，而是被允许在自己的节奏里长出真正成熟的表达。",
+        strengths: [
+          "你拥有极强的分析能力，擅长发现规则背后的底层逻辑。",
+          "你对新知识和新模型有天然好奇心，学习速度通常很快。",
+          "你不容易盲信权威，能保持思考的独立性与开放性。",
+          "面对复杂议题时，你往往比多数人更能抓住核心矛盾。",
+          "你的创意不是表面的花哨，而是建立在理解基础上的新组合。"
+        ],
+        weaknesses: [
+          "你容易陷入“再想想”的状态，导致行动被无形拖延。",
+          "当事情重复、琐碎、缺乏挑战时，你的专注度会迅速下滑。",
+          "你在情绪表达上略显迟钝，容易让人误会你不在乎。",
+          "过度追求逻辑自洽，有时会忽视现实情境里的复杂变量。",
+          "你脑内世界太丰富，反而可能让外在执行显得断断续续。"
+        ],
+        growth: [
+          "给自己的思考设置截止时间，把“想明白”与“先推进”结合起来。",
+          "在表达观点时加入更多场景化语言，让别人更容易听懂你。",
+          "练习把复杂问题拆成小行动，帮助自己从构思走向落地。",
+          "不要等到百分百确定再开始，很多答案本来就是做出来的。",
+          "学会关注关系中的情绪信号，这会让你的聪明更有温度。"
+        ]
+      },
+
+      ENTJ: {
+        level: "高阶人格",
+        energy: 91,
+        tags: ["统筹掌控者", "目标导向", "高执行人格"],
+        quote: "你不是天生强势，而是太早明白，真正的安全感要靠自己建立秩序。",
+        radar: [94, 78, 80, 88, 95, 66],
+        desc: "你是非常典型的掌控推进型人格。你看到问题时，第一反应不是抱怨，而是判断怎么解决；你面对机会时，第一反应不是犹豫，而是评估如何拿下。你天然带着向前推进的力量，在很多人还停留在情绪与想象阶段时，你已经开始思考资源、路径、效率与结果。这让你在群体中很容易成为主心骨，也容易被贴上强势、果断、说一不二的标签。可实际上，你并不是喜欢压别人，而是不愿在模糊和低效里消耗生命。你真正想要的，是把事情做成，把局势稳住，把自己的人生握在手里。",
+        strengths: [
+          "你有极强的目标感，知道自己要什么，也敢于为结果负责。",
+          "你的执行力很强，擅长把抽象想法转化成明确行动路径。",
+          "你在团队和局面中有很强的统筹能力，能迅速建立秩序。",
+          "面对压力时，你通常更容易进入解决问题模式，而不是自乱阵脚。",
+          "你具备战略眼光，能从更高维度判断人、事、资源与趋势。"
+        ],
+        weaknesses: [
+          "你容易因为太看重效率，而低估关系中的细腻感受。",
+          "当别人反复犹豫或执行力不足时，你会本能地产生压迫感。",
+          "你不太愿意示弱，久而久之会把很多压力都自己扛着。",
+          "有时你过于相信自己的判断，导致倾听不足或容错空间太小。",
+          "你对结果的执着可能让你忽略过程中的情绪修复与节奏平衡。"
+        ],
+        growth: [
+          "在推动结果之前，先确认对方是否真正理解并愿意跟上节奏。",
+          "尝试把“控制”转换为“赋能”，你会得到更长久的支持。",
+          "允许自己在少数可信赖的人面前表达脆弱，而不是永远硬撑。",
+          "给团队与关系留出呼吸空间，效率与信任并不冲突。",
+          "当你学会兼顾温度与锋芒，你的领导力会更稳定也更高级。"
+        ]
+      },
+
+      ENTP: {
+        level: "中高阶人格",
+        energy: 86,
+        tags: ["创意冒险家", "思维跳跃", "破局型人格"],
+        quote: "你最特别的地方，不是你会说，而是你总能把一潭死水搅出新的可能。",
+        radar: [86, 76, 70, 85, 89, 74],
+        desc: "你属于非常有生命力和破局能力的人格类型。你并不满足于按部就班地活着，也很难长期忍受无聊、僵化、重复和没有想象空间的环境。你喜欢探索新的方向，能从别人觉得理所当然的事物中看出不一样的可能，这让你既有创意，也有很强的说服与带动能力。你脑子快、反应快、表达快，很多时候一个想法刚冒出来，你已经能顺着它延展出几个版本。别人觉得你自由、聪明、有趣，但你也知道自己并不是一直稳定，有时候太多可能性同时出现，反而会让你分散、拖延，甚至在收尾时失去耐心。",
+        strengths: [
+          "你很擅长打开新局面，在僵局中创造新选项和新路径。",
+          "你的表达力和说服力很强，能快速调动氛围与关注度。",
+          "你适应变化的能力很高，不容易被突发情况彻底打乱。",
+          "你的创新不是空想，而是能在不同信息之间建立新的连接。",
+          "你对机会嗅觉敏锐，常常能比别人更早感知趋势与风口。"
+        ],
+        weaknesses: [
+          "你容易对新鲜感上头，却在持续推进和收尾上后劲不足。",
+          "当规则太多、流程太重时，你会本能地产生抗拒甚至厌倦。",
+          "你有时说得太快、太直接，容易忽略别人是否已经跟上。",
+          "太多想法并行时，你会陷入分散，导致结果不够聚焦。",
+          "你对重复训练和细节维护的耐心有限，容易高开低走。"
+        ],
+        growth: [
+          "练习在热情最强的时候同步建立收尾机制，防止半路掉线。",
+          "把创意分出优先级，不是每一个好点子都要马上去做。",
+          "在表达中加入停顿与确认，让沟通更有落点与承接。",
+          "学会尊重流程的价值，规则并不一定是创造力的敌人。",
+          "当你把灵感和稳定执行结合起来，会非常有竞争力。"
+        ]
+      },
+
+      INFJ: {
+        level: "高阶人格",
+        energy: 87,
+        tags: ["洞察型共情者", "内在秩序感", "理想主义者"],
+        quote: "你并不是脆弱，你只是比很多人更早感受到世界真正隐秘的温度与裂痕。",
+        radar: [84, 79, 77, 72, 90, 92],
+        desc: "你是那种表面安静，内里却极其丰沛的人。你并不热衷于把自己摆在最显眼的位置，但你对人、情绪、关系和氛围的感知非常敏锐，常常能在别人还没说出口之前，先察觉他们的状态。你既有理想，又有分寸；既追求深度，又不愿流于表面。你对生命有一种天然的认真，这种认真并不是严肃，而是你真的希望一切有意义、有价值、有回应。你可以很温柔，也可以很坚定，只是你的坚定往往藏在别人看不见的地方。你不是不强势，而是你更习惯用理解和洞察，而不是外放与压制去影响世界。",
+        strengths: [
+          "你有很强的洞察力，能读懂关系中的微妙变化与潜在问题。",
+          "你具备深层共情能力，能让别人感到被理解、被看见、被接住。",
+          "你通常有明确的内在价值观，不容易被外界轻易带跑。",
+          "你既能理想化思考，也能在关键时刻保持克制和判断。",
+          "你对深度关系与真正重要的事有持续投入的能力。"
+        ],
+        weaknesses: [
+          "你容易在意太多细微情绪，导致精神能量被无形消耗。",
+          "你不喜欢表面冲突，很多不舒服会选择先往自己心里放。",
+          "当现实与理想差距太大时，你会有明显的失望和失落感。",
+          "你对人的期待较深，一旦失望，抽离速度也会很快。",
+          "你常常懂别人多于懂自己，忽略了自己的真实需求。"
+        ],
+        growth: [
+          "先照顾好自己的能量，再去承担别人的情绪与期待。",
+          "把隐忍改成适度表达，让关系中真正重要的问题被看见。",
+          "允许现实有灰度，不必要求一切都立刻抵达理想状态。",
+          "学会把边界说出口，温柔不等于无限退让。",
+          "当你把洞察也用于自我照料时，你会活得更轻松、更稳。"
+        ]
+      },
+
+      INFP: {
+        level: "中高阶人格",
+        energy: 82,
+        tags: ["理想感受者", "价值导向", "温柔而坚定"],
+        quote: "你不是想太多，你只是对真假、轻重和真心，比别人更敏感。",
+        radar: [73, 81, 70, 66, 84, 93],
+        desc: "你是非常典型的内在价值驱动型人格。你不愿意为了适应外界而变得过分世故，也很难长期待在完全背离自己感受的环境里。你对真诚、善意、尊重、理解有天然需求，所以你看世界时，不只是看结果，也会看过程是否温柔、关系是否真诚、表达是否带着心。你往往比表面看起来更坚强，因为你并不是没有情绪，而是很多时候会自己慢慢消化。你能感受到很多别人忽略的细节，也会因为这些细节而被打动、被伤到、被治愈。你真正的力量，不在于锋利，而在于始终没有放弃做自己。",
+        strengths: [
+          "你有非常强的价值感，做事通常会尊重内心，而不是盲目随波逐流。",
+          "你的共情能力细腻而真诚，能捕捉别人没说出来的情绪。",
+          "你拥有很好的想象力和创造表达能力，适合做有温度的输出。",
+          "你对关系中的真心非常敏锐，能迅速识别敷衍与真诚。",
+          "你虽然安静，但一旦守护真正重要的东西，会非常坚定。"
+        ],
+        weaknesses: [
+          "你容易因为太在意感受，而在现实推进中显得慢半拍。",
+          "当情绪积累太久时，你会进入回避、抽离或自我怀疑状态。",
+          "你不擅长硬碰硬表达需求，容易让委屈在心里慢慢堆高。",
+          "理想和现实冲突时，你会有明显失落，甚至怀疑世界是否值得。",
+          "你对自己的要求并不低，只是很多压力外人不容易看见。"
+        ],
+        growth: [
+          "把感受写出来、说出来，而不是只在心里独自消化。",
+          "练习把理想转化为具体行动，让温柔也有落地的力量。",
+          "不要把别人的冷淡自动解释成自己的问题，很多事与你无关。",
+          "学会在关系里提出需求，真诚不该总是单向付出。",
+          "你不需要变得很硬，只需要变得更有边界。"
+        ]
+      },
+
+      ENFJ: {
+        level: "高阶人格",
+        energy: 89,
+        tags: ["关系引领者", "高共情表达", "外热内稳"],
+        quote: "你最有力量的时候，不是照亮所有人，而是照亮别人的同时也没有丢掉自己。",
+        radar: [82, 80, 78, 90, 86, 94],
+        desc: "你身上有一种很强的带动感和感染力。你不只是会说话，更重要的是你很会理解人、鼓励人、推进关系和调动气氛。很多人靠近你，会不自觉地觉得轻松、被尊重、被看见，这不是技巧，而是你确实有较强的情绪感知和人际整合能力。你常常能够在混乱的沟通中找到情绪落点，也能在群体里自然承担连接与推动的角色。可这也意味着你很容易不自觉地照顾太多人，把责任、期待和情绪都揽到自己身上。你看起来很会处理一切，但真正需要被温柔照顾的人，很多时候也是你自己。",
+        strengths: [
+          "你有很强的人际理解力，知道如何让人感到舒服与被尊重。",
+          "你擅长表达与鼓励，能在团队和关系中发挥明显的带动作用。",
+          "你对氛围变化非常敏锐，常常能提前感知潜在矛盾或情绪波动。",
+          "你具备较强的责任心，会愿意为人和事情持续投入精力。",
+          "你不只是会共情，也能把理解转化成具体行动与推动。"
+        ],
+        weaknesses: [
+          "你容易把别人的情绪背到自己身上，导致能量损耗过大。",
+          "为了维持关系和谐，你有时会压下自己的真实不舒服。",
+          "你太习惯承担，久而久之会让别人默认你可以无限输出。",
+          "一旦付出没有得到回应，你内心会很受伤，却未必说出来。",
+          "你对关系投入较深，所以在失望时也会比别人更难抽离。"
+        ],
+        growth: [
+          "继续做温暖的人，但不要再把自己放在最后一位。",
+          "练习区分“我愿意帮”和“这是我必须负责”之间的边界。",
+          "在关系里表达自己的真实需求，而不是只当那个理解别人的人。",
+          "把精力分配给真正重要的人和事，而不是平均照顾所有人。",
+          "当你学会先稳住自己，你对世界的照亮会更长久。"
+        ]
+      },
+
+      ENFP: {
+        level: "中高阶人格",
+        energy: 85,
+        tags: ["热烈感染力", "灵感驱动", "自由感人格"],
+        quote: "你不是不稳定，你只是有太多鲜活的感受和太多值得奔赴的可能性。",
+        radar: [74, 79, 68, 88, 83, 91],
+        desc: "你是那种一靠近就很有生命力的人。你不一定时时刻刻都外放，但你身上天然有一种热度，能让人感到轻松、有趣、真实和被点亮。你对人、想法、机会、感受都很敏感，内心像一直有很多小火花在跳动，所以你很适合创造、表达、连接、感染别人。你能很快发现一个人身上的特别之处，也能让平淡的事情变得有温度、有画面、有故事。只是与此同时，你也很容易因为情绪和新鲜感波动而分散能量。你并不是不想稳定，而是你需要的稳定，从来不是压抑自己，而是在自由里建立节奏。",
+        strengths: [
+          "你很有感染力，容易把热情、希望和能量传递给身边的人。",
+          "你富有创造力，能把普通表达变得鲜活、有趣、有记忆点。",
+          "你对关系很敏感，擅长发现别人情绪和个性上的微小变化。",
+          "你适应新环境的速度快，对新机会和新体验保持开放。",
+          "你在鼓励、安慰、连接他人方面很有天赋，让人愿意靠近你。"
+        ],
+        weaknesses: [
+          "你容易被新鲜感牵引，导致专注度和持续力不够稳定。",
+          "情绪上来时，你会明显影响节奏，甚至突然想暂停一切。",
+          "你不太喜欢过度僵硬的规则，长期处于强控制环境会很压抑。",
+          "你常常高估当下热情，低估长期推进所需要的耐心与重复。",
+          "你害怕关系冷掉，所以有时会为了维系氛围而委屈自己。"
+        ],
+        growth: [
+          "把灵感和热情记录下来，同时建立固定的执行小节奏。",
+          "不要用一时状态定义自己，波动不代表你没有能力。",
+          "练习给事情收尾，真正拉开人与人差距的往往是完成度。",
+          "在关系中继续真诚，但不要把取悦当成连接的唯一方式。",
+          "你最有魅力的样子，不是永远发光，而是有热情也有边界。"
+        ]
+      },
+
+      ISTJ: {
+        level: "高稳定型人格",
+        energy: 83,
+        tags: ["秩序执行者", "可靠型人格", "规则感很强"],
+        quote: "你真正稀缺的，不是热闹时的存在感，而是关键时刻永远不掉线的可靠。",
+        radar: [88, 72, 79, 76, 82, 60],
+        desc: "你是典型的稳态执行型人格，很多人第一眼会觉得你克制、务实、不太会花哨表达，但越深入接触，越能感受到你身上那种极强的责任感与稳定感。你不喜欢轻飘飘的承诺，也不太相信空话，更愿意用真实行动去证明态度。你对秩序、规则、时间和边界有天然敏感度，这使你在很多复杂场景中都能保持清晰，不容易失控。你不是那种最会制造情绪的人，却常常是最能把事情稳住的人。你看重长期、重视标准，也愿意为自己认定的事默默扛起责任，这种不喧哗的力量，本身就很有分量。",
+        strengths: [
+          "你有很强的执行稳定性，答应过的事情通常会认真做到位。",
+          "你对规则和流程有清晰感，能让混乱局面逐渐回到可控状态。",
+          "你处理现实问题时务实冷静，不容易被表面情绪带偏。",
+          "你在长期坚持方面有明显优势，做事更注重可靠性与完成度。",
+          "你给人的安全感很强，因为你的承诺大多经得起时间检验。"
+        ],
+        weaknesses: [
+          "你容易过度依赖已有经验，对变化和新方式的接受速度偏慢。",
+          "当别人做事随意或不守规则时，你内心会明显不耐烦。",
+          "你不太习惯高频表达感受，容易让人误解你过于冷淡。",
+          "过度强调责任可能让你把很多压力都自己吞下去。",
+          "你对细节和标准要求很高，偶尔会显得紧绷、不够松弛。"
+        ],
+        growth: [
+          "在坚持原则的同时，也给变化和新方法留一点试错空间。",
+          "尝试表达你的在意，不要总是用行动代替所有情绪沟通。",
+          "允许自己偶尔放松，不必把每一件事都扛成责任。",
+          "学会看到别人和你不同的节奏，而不只是判断对错。",
+          "当你把稳定与灵活结合起来，你会更强也更轻松。"
+        ]
+      },
+
+      ISFJ: {
+        level: "温柔守护型人格",
+        energy: 84,
+        tags: ["细腻照顾者", "高责任感", "安静而可靠"],
+        quote: "你未必总站在最前面，但很多人真正能安心，恰恰是因为你一直都在。",
+        radar: [76, 78, 77, 82, 74, 91],
+        desc: "你是那种很容易让人安心的人。你未必会高调表达自己，但你对人的情绪、需求和细节有天然的敏感度，常常能在别人还没开口前就先察觉他们哪里不舒服、哪里需要被照顾。你并不喜欢浮夸地证明价值，更习惯通过认真、细致、稳定和可靠去支撑一段关系、一个团队或者一件事情。你看起来温和，但并不代表没有原则；你只是更倾向于用柔和方式来维护秩序和善意。你在很多场合都像一个隐形缓冲层，默默让很多事情变顺、让很多人变轻松。只是这种习惯性的照顾，也会让你很容易把自己放在最后。",
+        strengths: [
+          "你非常细心，能够发现别人容易忽略的小需求和小变化。",
+          "你有强烈责任感，愿意为重要的人和事持续付出。",
+          "你在人际关系中很有稳定性，容易给人被接住的感觉。",
+          "你做事通常耐心、认真，不容易因为情绪波动而失去分寸。",
+          "你具备很强的同理与照顾能力，适合建立高信任关系。"
+        ],
+        weaknesses: [
+          "你容易为了照顾别人而压下自己的真实感受与疲惫。",
+          "你不喜欢冲突，很多委屈会先自己消化，久了容易积压。",
+          "面对变化较大的环境时，你会需要更长的适应过程。",
+          "你太习惯懂事，反而可能让别人忽略你也需要被照顾。",
+          "你在关系里容易投入过深，一旦失望会很受伤。"
+        ],
+        growth: [
+          "在继续温柔待人的同时，也要练习明确表达自己的需求。",
+          "不要把所有情绪都自己消化，委屈说出来并不等于麻烦别人。",
+          "允许自己偶尔拒绝，不必把“照顾 everyone”当成责任。",
+          "尝试把安全感更多建立在自我价值，而不只是被需要感上。",
+          "当你学会先照顾自己，你给别人的温柔才会更长久。"
+        ]
+      },
+
+      ESTJ: {
+        level: "高执行领导型",
+        energy: 89,
+        tags: ["秩序管理者", "行动派", "现实推进型"],
+        quote: "你不是天生强硬，你只是太清楚，一件事想成，就必须有人站出来把局面稳住。",
+        radar: [91, 74, 81, 87, 88, 63],
+        desc: "你是典型的现实推进型人格。很多事情在别人眼里还是想法、讨论和可能性时，在你这里已经开始进入计划、分工、执行和落地阶段。你不喜欢拖泥带水，也不太能忍受长期混乱和无效沟通，因为你很清楚时间和秩序本身就是资源。你身上有很强的组织力、管理感和现实判断力，天然擅长在群体里建立标准、推进节奏、让事情往前走。别人会觉得你果断、能扛事、很有掌控力，但你自己知道，你之所以总想把局势握在手里，并不是单纯为了控制，而是你比很多人更难忍受低效与失序。",
+        strengths: [
+          "你有很强的行动力，能迅速把目标拆成可执行步骤。",
+          "你擅长组织和管理，面对复杂事务时不容易乱阵脚。",
+          "你对现实问题有很强判断力，能够快速做出务实选择。",
+          "你在责任承担方面非常稳，关键时刻往往能顶上去。",
+          "你有明确标准与规则意识，能够让团队和流程更可控。"
+        ],
+        weaknesses: [
+          "你容易因为追求效率而忽略别人情绪上的接受度。",
+          "当别人执行力弱、拖延或模糊时，你会明显变得强势。",
+          "你不太喜欢低效率讨论，有时会显得过于直接甚至压迫。",
+          "你更看重结果，偶尔会低估关系中的情感修复与过渡。",
+          "你对自己和别人都要求较高，长期下来容易让气氛变紧。"
+        ],
+        growth: [
+          "推动事情时，记得同步给别人留出理解和跟上的空间。",
+          "把“标准”与“包容”结合起来，你会更有长期影响力。",
+          "在表达要求之前，先确认对方是否真的理解你的逻辑。",
+          "不要把所有偏差都视为不负责，有些只是节奏不同。",
+          "当你学会兼顾人心与结果，你的领导力会更成熟。"
+        ]
+      },
+
+      ESFJ: {
+        level: "温暖组织型人格",
+        energy: 86,
+        tags: ["关系维系者", "高配合度", "氛围稳定器"],
+        quote: "你真正厉害的地方，不是会照顾人，而是你总能让别人觉得，这个世界还是有温度的。",
+        radar: [75, 80, 76, 88, 73, 92],
+        desc: "你是很典型的关系型行动者。你不仅关注事情怎么做，也会非常在意别人会不会难受、气氛会不会尴尬、关系会不会失衡。你天然有很强的协调与照顾能力，擅长在群体中维持秩序、缓和情绪、让彼此更顺畅地合作和相处。你并不是软弱，而是很懂得用温和方式推进现实，很多人会因为你的存在而觉得放松、安心、容易配合。你很珍惜关系，也愿意投入心力去经营身边的重要连接。只是当你太习惯把别人放在前面时，也可能慢慢忽略了自己的委屈、疲惫和真正想要的东西。",
+        strengths: [
+          "你擅长照顾氛围和他人感受，能快速让关系进入舒服状态。",
+          "你有良好的配合力和责任感，适合承担组织与协调角色。",
+          "你在人际互动中很自然，容易建立信任和稳定连接。",
+          "你会认真回应别人的需求，让人觉得被重视、被理解。",
+          "你推进事情时通常兼顾效率和人情，不容易把场面做僵。"
+        ],
+        weaknesses: [
+          "你容易过度在意别人评价，导致自己做决定时不够自由。",
+          "为了保持和谐，你有时会压住真实不满，委屈自己。",
+          "你不太擅长处理冷漠和疏离，容易因此陷入情绪波动。",
+          "你习惯照顾别人，久了可能形成过度付出型模式。",
+          "你对关系期待高，一旦不被回应会比表面看起来更受伤。"
+        ],
+        growth: [
+          "继续保持你的温暖，但不要把取悦当成维系关系的唯一方式。",
+          "练习区分“我愿意”与“我不得不”，减少情绪透支。",
+          "把注意力也分给自己，学会为自己的需求留位置。",
+          "不必让所有人都满意，真正重要的是关系是否双向流动。",
+          "当你拥有边界感，你的温柔会更稳、更有力量。"
+        ]
+      },
+
+      ISTP: {
+        level: "冷静应变型人格",
+        energy: 81,
+        tags: ["实战问题解构者", "冷静行动派", "独立感很强"],
+        quote: "你未必要控制全场，但在真正出问题的时候，很多人会发现最能稳住的人是你。",
+        radar: [86, 72, 80, 74, 79, 61],
+        desc: "你是很典型的现实反应型人格。你不喜欢空转，也不太热衷于没有意义的情绪拉扯，相比长篇讨论，你更习惯看问题本身、看结构、看哪里坏了、怎么修、怎么让它恢复正常。你对复杂环境有较强的适应力，尤其在突发情况和实际操作层面，往往比很多人更冷静、更有判断。你不喜欢被束缚，也不愿意被频繁干涉，所以你通常更擅长在自己的节奏里独立处理问题。你给人的感觉可能偏酷、偏淡、偏不黏人，但那并不等于你不在乎，只是你表达在乎的方式更直接、更实际，也更少废话。",
+        strengths: [
+          "你在应对突发情况时很冷静，擅长快速判断和现场解决问题。",
+          "你有较强的独立性，不依赖外部过多推动也能自己处理事情。",
+          "你思考问题偏实际，不容易被空话和表面形式带偏。",
+          "你动手能力和落地能力强，适合把抽象问题转成具体处理。",
+          "你在高压场景中往往比平时更稳定，能给局面带来可控感。"
+        ],
+        weaknesses: [
+          "你不喜欢情绪化沟通，容易在亲密关系里显得不够热络。",
+          "当别人频繁干涉或过度管控时，你会迅速抽离甚至抗拒。",
+          "你有时太依赖当下判断，不愿提前规划过多长期路线。",
+          "你对重复、繁琐、过度流程化的事务耐心有限。",
+          "你不习惯解释太多，容易让别人误会你冷淡或不在意。"
+        ],
+        growth: [
+          "在保持独立性的同时，适度解释你的想法会减少很多误解。",
+          "遇到重要关系时，不要只处理问题，也要回应情绪。",
+          "尝试建立一点长期规划，让你的行动力不只停留在当下。",
+          "把“我自己能搞定”升级成“我也会让别人知道我在意”。",
+          "当你把效率和连接感结合起来，会显得更成熟也更有魅力。"
+        ]
+      },
+
+      ISFP: {
+        level: "细腻感受型人格",
+        energy: 80,
+        tags: ["柔软审美者", "感受真实", "安静有边界"],
+        quote: "你不是没有锋芒，你只是习惯把锋芒藏进温柔、审美和不轻易打扰别人的分寸里。",
+        radar: [70, 82, 74, 71, 78, 90],
+        desc: "你是非常有感受力的人。你往往不需要喧闹地表达自己，也能在人群里保留一种很独特的气质——温和、安静、真实、有分寸。你对美、细节、氛围、关系和感受有天然敏感度，所以你更在意一个人是不是舒服、一件事是不是顺心、一个环境是不是让你能够安心做自己。你不太喜欢被强行推动，也不喜欢过多暴露自己，但这不代表你没有主见，相反，你对自己喜欢什么、不喜欢什么，内心常常很清楚。你看似柔软，实则对边界、尊重和真实非常敏感。真正懂你的人会发现，你的力量不是外放，而是一种不失真地活着的能力。",
+        strengths: [
+          "你对情绪、氛围和审美有很强感知，容易形成独特个人气质。",
+          "你通常不会虚张声势，更倾向于用真实与细腻打动别人。",
+          "你对自己的喜好和边界有隐性的清晰度，不容易随便妥协。",
+          "你在人际中温和有分寸，让人觉得舒服但不会有压迫感。",
+          "你擅长通过作品、表达、细节和选择呈现自己的内在世界。"
+        ],
+        weaknesses: [
+          "你不太喜欢直接冲突，很多不舒服会先压着不说。",
+          "情绪低落时，你可能更倾向回避，而不是主动寻求支持。",
+          "你在现实推进和计划管理方面有时会不够稳定。",
+          "当外部环境太强硬、太吵、太控制时，你会明显消耗。",
+          "你容易把很多感受留在心里，导致别人看不懂你的真实想法。"
+        ],
+        growth: [
+          "继续保持你的真实，但别让沉默取代所有需求表达。",
+          "在重要场景里学会更清楚地说“不”和说“我想要什么”。",
+          "给自己建立一点点可执行节奏，帮助天赋更稳定地落地。",
+          "不要总等别人来懂你，适当表达也是一种自我保护。",
+          "你最迷人的状态，不是迎合世界，而是在世界里稳稳做自己。"
+        ]
+      },
+
+      ESTP: {
+        level: "高反应行动型",
+        energy: 87,
+        tags: ["现场掌控者", "敢冲敢试", "高适应性人格"],
+        quote: "你吸引人的，从来不只是热闹感，而是你总能在变化里迅速找到突破口。",
+        radar: [82, 77, 75, 90, 84, 72],
+        desc: "你属于很强的现实应对型人格。你对环境变化非常敏锐，也有很强的即刻反应能力，所以很多人会觉得你灵活、直接、会来事、很会抓机会。你不太喜欢空谈，更喜欢从真实情况里迅速找到突破点，然后直接去做、去试、去验证。你身上有一种不怕局面的劲儿，很多人在犹豫的时候，你已经开始行动了。你擅长现场感、节奏感和机会感，这让你在人群中很容易显得有存在感、有生命力、有推动力。只是你的优势也带来挑战——当你过于依赖当下反应和兴奋感时，可能会忽略长期节奏、细节维护和后续收尾。",
+        strengths: [
+          "你适应环境变化非常快，面对突发情况往往反应比别人更迅速。",
+          "你行动力强，不会被过度犹豫和空想长时间困住。",
+          "你有很强的现场判断力，擅长抓住时机和推动局面变化。",
+          "你表达直接、状态鲜活，容易带动氛围和提升行动意愿。",
+          "你在现实世界里试错能力强，敢于靠实践获得答案。"
+        ],
+        weaknesses: [
+          "你有时太相信临场反应，忽略长期规划和后续维护的重要性。",
+          "当新鲜感下降后，你对重复执行和收尾的耐心会减弱。",
+          "你不喜欢被限制太多，容易和过度僵硬的规则产生冲突。",
+          "冲得太快时，你可能会低估情绪后果和细节风险。",
+          "你偏向即时反馈，遇到慢节奏过程时容易不耐烦。"
+        ],
+        growth: [
+          "保留你的行动优势，同时建立基础复盘和收尾机制。",
+          "别把“先做了再说”变成唯一模式，重要事情值得多看一步。",
+          "学会在热情最足的时候，也给未来留一点结构和安排。",
+          "继续大胆，但要把冲劲升级为可持续的推进能力。",
+          "当你兼顾节奏与结果，你会比现在更有持续竞争力。"
+        ]
+      },
+
+      ESFP: {
+        level: "高感染魅力型",
+        energy: 85,
+        tags: ["氛围点亮者", "真实表达", "热情生命力"],
+        quote: "你最让人心动的，不是会热闹，而是你总能把平凡日子过出一点发光的感觉。",
+        radar: [72, 80, 73, 89, 76, 93],
+        desc: "你是很有生命力和感染力的人。你对环境、情绪、互动和体验都非常敏感，所以你往往比很多人更容易感受到快乐、尴尬、心动、失落和人与人之间那些流动的气氛。你天然带着一点让场子亮起来的能力，不一定总是最会说的那个，但常常是最能让气氛活起来、让别人放松下来、让关系变得有温度的人。你喜欢真实、喜欢有感觉的生活，也愿意把热情和关注直接给出去。你不是浅，你只是很会活在当下，很会把瞬间过得有画面、有情绪、有温度。只是当你太依赖情绪驱动时，也可能在规划和稳定推进上显得有点飘。",
+        strengths: [
+          "你有很强感染力，能够迅速让氛围变轻松、自然、有人味。",
+          "你很真实，情绪表达直接，不容易给人虚假感和距离感。",
+          "你对人和关系反应敏锐，擅长制造连接和拉近距离。",
+          "你很会感受生活中的快乐与细节，能给身边人带来活力。",
+          "你在即时互动、表达和关系破冰方面有明显优势。"
+        ],
+        weaknesses: [
+          "你容易被情绪和新鲜感牵着走，稳定性有时不够强。",
+          "你不太喜欢长期压抑感受，因此面对高控制环境会很疲惫。",
+          "在需要长期规划和重复执行时，你可能会逐渐失去耐心。",
+          "你很在意关系氛围，所以有时会为了场面好看而压住自己。",
+          "当外界反馈冷淡时，你比别人更容易感到落差和失落。"
+        ],
+        growth: [
+          "保留你的热情，但要给它配上一点持续推进的结构。",
+          "不是每次都要靠情绪来启动，建立节奏会让你更稳。",
+          "学会分辨谁值得你持续投入，不必把能量平均分给所有人。",
+          "在关系里继续真诚，同时也要练习边界和自我保护。",
+          "当你把快乐感和完成度结合起来，你会非常有吸引力。"
+        ]
+      }
+    };
+
+    const fallbackType = "INTJ";
+
+    function getSafeType() {
+      const rawType = (localStorage.getItem("mbtiType") || "").toUpperCase().trim();
+      if (mbtiData[rawType]) return rawType;
+      return fallbackType;
+    }
+
+    function getCurrentProfile() {
+      const currentType = getSafeType();
+      return {
+        type: currentType,
+        data: mbtiData[currentType]
+      };
+    }
+
+    function setCircleProgress(score) {
+      const progressEl = document.getElementById("scoreProgress");
+      const scoreValueEl = document.getElementById("scoreValue");
+      const radius = 45;
+      const circumference = 2 * Math.PI * radius;
+      const safeScore = Math.max(0, Math.min(100, Number(score) || 0));
+      const offset = circumference * (1 - safeScore / 100);
+
+      progressEl.style.strokeDasharray = circumference.toFixed(2);
+      progressEl.style.strokeDashoffset = offset.toFixed(2);
+      scoreValueEl.textContent = safeScore;
+    }
+
+    function renderTags(tags) {
+      const tagList = document.getElementById("tagList");
+      tagList.innerHTML = "";
+      tags.forEach(tag => {
+        const span = document.createElement("span");
+        span.className = "tag-item";
+        span.textContent = tag;
+        tagList.appendChild(span);
+      });
+    }
+
+    function renderTopCard(type, data) {
+      document.getElementById("typeName").textContent = type;
+      document.getElementById("levelText").textContent = data.level;
+      document.getElementById("energyText").textContent = `${data.energy}%`;
+      document.getElementById("heroSubtitle").textContent = data.desc.slice(0, 56) + "…";
+      document.getElementById("quoteText").textContent = data.quote;
+      renderTags(data.tags);
+      setCircleProgress(data.energy);
+    }
+
+    function getRadarPoints(values, centerX, centerY, maxRadius) {
+      return values.map((value, index) => {
+        const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
+        const angle = (-90 + index * 60) * Math.PI / 180;
+        const radius = maxRadius * (safeValue / 100);
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        return { x, y, value: safeValue };
+      });
+    }
+
+    function renderRadar(values) {
+      const shape = document.getElementById("radarShape");
+      const dotsGroup = document.getElementById("radarDots");
+      const points = getRadarPoints(values, 160, 160, 114);
+      const pointText = points.map(point => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
+      shape.setAttribute("points", pointText);
+
+      dotsGroup.innerHTML = "";
+      points.forEach((point, index) => {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("class", "radar-dot");
+        circle.setAttribute("cx", point.x.toFixed(2));
+        circle.setAttribute("cy", point.y.toFixed(2));
+        circle.setAttribute("r", "4.5");
+        dotsGroup.appendChild(circle);
+
+        const scoreLabel = document.getElementById(`scoreLabel${index}`);
+        if (scoreLabel) scoreLabel.textContent = point.value;
+      });
+    }
+
+    function getScoreLevel(score) {
+      if (score >= 88) return "非常突出";
+      if (score >= 78) return "表现稳定";
+      if (score >= 68) return "较为均衡";
+      return "仍有提升空间";
+    }
+
+    function getDimensionNarrative(type, name, score, index) {
+      const intros = {
+        "理性决策": "你在做判断时",
+        "自我接纳": "你面对自己时",
+        "情绪稳定": "你遇到压力时",
+        "社会适应": "你进入环境时",
+        "人生格局": "你看待未来时",
+        "关系感知": "你处理关系时"
+      };
+
+      const highMap = {
+        "理性决策": "更容易先抓住重点、筛掉噪音，再决定如何出手，因此判断通常干脆且有依据。",
+        "自我接纳": "对自己的优劣势有相对清晰的认识，不太会被短期评价轻易击穿内核。",
+        "情绪稳定": "能够在波动中维持基本秩序，不会轻易让情绪完全接管行为。",
+        "社会适应": "适应现实节奏的能力较强，能较快找到自己的位置与相处方式。",
+        "人生格局": "习惯从更长期、更完整的视角看问题，不会只盯着眼前得失。",
+        "关系感知": "能敏锐察觉互动中的微妙变化，比较容易读懂别人没明说的状态。"
+      };
+
+      const midMap = {
+        "理性决策": "通常能保持基本判断力，但当信息过多或情绪卷入时，仍可能出现短暂摇摆。",
+        "自我接纳": "对自己有一定理解，但偶尔会因为状态波动而对自己要求过高。",
+        "情绪稳定": "整体还算平稳，只是当某些敏感点被连续触发时，内耗会明显增加。",
+        "社会适应": "能够与环境磨合，只是需要更多时间确认安全感和节奏感。",
+        "人生格局": "有一定长线意识，但在现实压力大时，偶尔也会被眼前问题牵住注意力。",
+        "关系感知": "对情绪和氛围有基本敏感度，只是有时会选择先观察而不是立刻回应。"
+      };
+
+      const lowMap = {
+        "理性决策": "更容易受当下情境影响，需要通过停顿与复盘来提升判断的稳定度。",
+        "自我接纳": "容易在某些阶段对自己过于苛刻，需要更多温柔与现实感来对待自己。",
+        "情绪稳定": "受环境和关系影响较明显，学会调节与释放会比硬撑更重要。",
+        "社会适应": "不是不能适应，而是很怕被不合适的环境持续消耗，所以更需要找到匹配的节奏。",
+        "人生格局": "并非没有视野，而是容易在具体压力中暂时忽略更长远的方向感。",
+        "关系感知": "对关系的理解常带着主观感受，需要多一点表达与确认来减少误判。"
+      };
+
+      let detail = "";
+      if (score >= 78) detail = highMap[name];
+      else if (score >= 68) detail = midMap[name];
+      else detail = lowMap[name];
+
+      return `${intros[name]}通常呈现出“${getScoreLevel(score)}”的特征。对${type}来说，这个维度的得分为${score}分，说明你${detail}`;
+    }
+
+    function renderAbilityShell(values, type) {
+      const shell = document.getElementById("abilityShell");
+      shell.innerHTML = "";
+
+      RADAR_DIMENSIONS.forEach((name, index) => {
+        const item = document.createElement("article");
+        item.className = "ability-item";
+        const score = values[index];
+
+        item.innerHTML = `
+          <div class="ability-top">
+            <div class="ability-name">
+              <span class="ability-index">${index + 1}</span>
+              <h3 class="ability-title">${name}</h3>
+            </div>
+            <div class="ability-value">${score}分</div>
+          </div>
+          <p class="ability-placeholder">${getDimensionNarrative(type, name, score, index)}</p>
+        `;
+
+        shell.appendChild(item);
+      });
+    }
+
+    function createPointList(containerId, items) {
+      const box = document.getElementById(containerId);
+      box.innerHTML = "";
+      items.forEach((text, index) => {
+        const item = document.createElement("div");
+        item.className = "point-item";
+        item.innerHTML = `
+          <span class="point-bullet">${index + 1}</span>
+          <p class="point-text">${text}</p>
+        `;
+        box.appendChild(item);
+      });
+    }
+
+    function buildSummary(type, data) {
+      const tagText = data.tags.join(" / ");
+      return `你的${type}人格并不是一种单一标签，而是一套稳定又鲜明的内在运行方式。你身上的关键词是：${tagText}。这意味着你既有自己天然擅长的优势，也有容易反复卡住的模式。但真正重要的，从来不是“你是什么类型”，而是你开始理解自己为什么会这样反应、为什么会这样爱人、为什么会这样面对世界。当你越来越懂自己，你的锋芒会更稳，温柔会更有边界，人生也会越来越接近你真正想要的样子。`;
+    }
+
+    function renderDetailSections(type, data) {
+      document.getElementById("descContent").textContent = data.desc;
+      createPointList("strengthsList", data.strengths);
+      createPointList("weaknessesList", data.weaknesses);
+      createPointList("growthList", data.growth);
+      document.getElementById("summaryTitle").textContent = `${type}｜你不是被定义，而是被真正看见。`;
+      document.getElementById("summaryText").textContent = buildSummary(type, data);
+    }
+
+    function safeInit() {
+      const { type, data } = getCurrentProfile();
+
+      if (!data || !Array.isArray(data.radar) || data.radar.length !== 6) {
+        const fallbackData = mbtiData[fallbackType];
+        renderTopCard(fallbackType, fallbackData);
+        renderRadar(fallbackData.radar);
+        renderAbilityShell(fallbackData.radar, fallbackType);
+        renderDetailSections(fallbackType, fallbackData);
+        return;
+      }
+
+      renderTopCard(type, data);
+      renderRadar(data.radar);
+      renderAbilityShell(data.radar, type);
+      renderDetailSections(type, data);
+    }
+
+    safeInit();
+  </script>
+</body>
+</html>
